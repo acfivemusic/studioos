@@ -227,29 +227,13 @@ export function SchedulesTab({ projectId }: SchedulesTabProps) {
           )}
         </div>
 
-        {/* Export PDF icon-only */}
-        <button
-          title="Export PDF"
-          className="toolbar-icon-btn"
-        >
-          <span className="material-icons-outlined" style={{ fontSize: 18 }}>picture_as_pdf</span>
-        </button>
-
-        {/* Preview PDF icon-only */}
-        <button
-          title="Preview PDF"
-          className="toolbar-icon-btn"
-        >
-          <span className="material-icons-outlined" style={{ fontSize: 18 }}>visibility</span>
-        </button>
-
-        {/* New Section */}
+        {/* New Schedule */}
         <button
           onClick={() => setShowNewPanel(true)}
           className="flex items-center gap-1.5 px-3 py-1.5 text-sm bg-foreground text-background rounded-lg hover:bg-foreground/90 transition-colors font-medium"
         >
           <span className="material-icons-outlined" style={{ fontSize: 16 }}>add</span>
-          New Section
+          New Schedule
         </button>
       </div>
 

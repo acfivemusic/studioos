@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { Schedule, ScheduleProduct } from '@/lib/schedules-data';
+import { SidePanel } from '@/components/ui/SidePanel';
 
 interface ExportScheduleModalProps {
   schedule: Schedule;
@@ -9,175 +10,184 @@ interface ExportScheduleModalProps {
   onClose: () => void;
 }
 
-type ExportFormat = 'PDF' | 'Excel' | 'CSV';
-type ExportScope = 'All Products' | 'Selected Products';
-type ExportLayout = 'Full Schedule' | 'Summary Only' | 'Spec Sheets';
+const DEFAULT_FIELDS = [
+  'Product Description',
+  'Product Details',
+  'Doc Code',
+  'Colour',
+  'Finish',
+  'Material',
+  'Dimensions',
+] as const;
+
+const OPTIONAL_FIELDS = [
+  'Brand Details',
+  'Supplier Details',
+  'Product URL',
+  'Order Information',
+  'Important Information',
+  'Notes',
+  'Product RRP',
+  'Product Client Price',
+  'Total Schedule Value',
+] as const;
+
+type FieldName = typeof DEFAULT_FIELDS[number] | typeof OPTIONAL_FIELDS[number];
 
 export function ExportScheduleModal({
   schedule,
   selectedProducts = [],
   onClose,
 }: ExportScheduleModalProps) {
-  const [format, setFormat] = useState<ExportFormat>('PDF');
-  const [scope, setScope] = useState<ExportScope>('All Products');
-  const [layout, setLayout] = useState<ExportLayout>('Full Schedule');
-  const [includePricing, setIncludePricing] = useState(true);
-  const [includeNotes, setIncludeNotes] = useState(true);
+  const [selectedFields, setSelectedFields] = useState<Set<FieldName>>(
+    new Set(DEFAULT_FIELDS)
+  );
   const [exporting, setExporting] = useState(false);
 
-  const handleExport = async () => {
-    setExporting(true);
-    // Placeholder for actual export logic
-    await new Promise(resolve => setTimeout(resolve, 1500));
-    setExporting(false);
-    onClose();
+  const toggleFieldSet = (field: FieldName) => {
+    setSelectedFields(prev => {
+      const next = new Set(prev);
+      if (next.has(field)) next.delete(field);
+      else next.add(field);
+      return next;
+    });
   };
 
+  const handlePreview = () => {
+    const allProducts = schedule.sections.flatMap(s => s.products);
+    const products = selectedProducts.length > 0
+      ? allProducts.filter(p => selectedProducts.includes(p.id))
+      : allProducts;
+
+    const fields = Array.from(selectedFields);
+    const win = window.open('', '_blank');
+    if (!win) return;
+
+    const fieldToValue = (p: ScheduleProduct, field: FieldName): string => {
+      switch (field) {
+        case 'Product Description': return p.description || p.name || '';
+        case 'Product Details': return `${p.productType || ''} ${p.sku || ''}`.trim();
+        case 'Doc Code': return p.docCode || '';
+        case 'Colour': return p.colour || '';
+        case 'Finish': return p.finish || '';
+        case 'Material': return p.material || '';
+        case 'Dimensions': return [p.width, p.length, p.height, p.depth].filter(Boolean).join(' × ') + ' mm';
+        case 'Brand Details': return p.brand || '';
+        case 'Supplier Details': return p.supplier || '';
+        case 'Product URL': return p.productUrl || '';
+        case 'Order Information': return `Qty: ${p.quantity || '1'}, Lead: ${p.leadTime || '—'}`;
+        case 'Important Information': return p.importantInfo || '';
+        case 'Notes': return p.notes || '';
+        case 'Product RRP': return p.unitCost || '—';
+        case 'Product Client Price': return p.unitCost || '—';
+        case 'Total Schedule Value': return '';
+        default: return '';
+      }
+    };
+
+    const rowsHtml = products.map((p, i) => {
+      const cells = fields.map(f => `<td style="padding:6px 10px;border:1px solid #ddd;">${fieldToValue(p, f) || '—'}</td>`).join('');
+      return `<tr>${cells}</tr>`;
+    }).join('');
+
+    const totalValue = products.reduce((s, p) => s + parseFloat(p.unitCost || '0') * parseFloat(p.quantity || '1'), 0);
+
+    win.document.write(`
+      <html><head><title>${schedule.name} — Preview</title>
+      <style>body{font-family:Arial,sans-serif;padding:32px;}h1{font-size:20px;margin-bottom:4px;}p.sub{color:#666;font-size:13px;margin-bottom:20px;}table{width:100%;border-collapse:collapse;font-size:12px;}th{background:#f5f5f5;padding:6px 10px;border:1px solid #ddd;text-align:left;font-size:11px;}.total{margin-top:16px;font-weight:bold;}</style>
+      </head><body>
+      <h1>${schedule.name}</h1>
+      <p class="sub">${products.length} products · Generated ${new Date().toLocaleDateString('en-AU')}</p>
+      <table><thead><tr>${fields.map(f => `<th>${f}</th>`).join('')}</tr></thead><tbody>${rowsHtml}</tbody></table>
+      ${selectedFields.has('Total Schedule Value') ? `<p class="total">Total Schedule Value: A$${totalValue.toLocaleString('en-AU', { minimumFractionDigits: 2 })}</p>` : ''}
+      </body></html>
+    `);
+    win.document.close();
+  };
+
+  const handleDownload = async () => {
+    setExporting(true);
+    handlePreview();
+    setTimeout(() => {
+      setExporting(false);
+      onClose();
+    }, 500);
+  };
+
+  const FieldCheckbox = ({ field, default: isDefault }: { field: FieldName; default?: boolean }) => (
+    <label className="flex items-center gap-2.5 cursor-pointer py-1.5">
+      <input
+        type="checkbox"
+        checked={selectedFields.has(field)}
+        onChange={() => toggleFieldSet(field)}
+        className="w-4 h-4 rounded border-border accent-foreground"
+      />
+      <span className="text-sm">{field}</span>
+      {isDefault && <span className="text-[10px] text-muted-foreground/60 ml-auto">Default</span>}
+    </label>
+  );
+
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center">
-      <div className="absolute inset-0 bg-black/20" onClick={onClose} />
-      <div className="relative bg-card border border-border rounded-2xl shadow-xl w-full max-w-md mx-4 overflow-hidden">
-        {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-border">
-          <div>
-            <h2 className="font-semibold">Export Schedule</h2>
-            <p className="text-xs text-muted-foreground mt-0.5">{schedule.name}</p>
+    <SidePanel
+      title="Export Schedule"
+      subtitle={schedule.name}
+      onClose={onClose}
+      footer={
+        <>
+          <div />
+          <div className="flex gap-2">
+            <button
+              onClick={handlePreview}
+              className="flex items-center gap-1.5 px-4 py-2 text-sm border border-border rounded-lg hover:bg-muted transition-colors"
+            >
+              <span className="material-icons-outlined" style={{ fontSize: 16 }}>visibility</span>
+              Preview PDF
+            </button>
+            <button
+              onClick={handleDownload}
+              disabled={exporting}
+              className="flex items-center gap-1.5 px-4 py-2 text-sm bg-foreground text-background rounded-lg hover:bg-foreground/90 transition-colors font-medium disabled:opacity-50"
+            >
+              {exporting ? (
+                <>
+                  <span className="material-icons-outlined animate-spin" style={{ fontSize: 16 }}>autorenew</span>
+                  Generating...
+                </>
+              ) : (
+                <>
+                  <span className="material-icons-outlined" style={{ fontSize: 16 }}>download</span>
+                  Download PDF
+                </>
+              )}
+            </button>
           </div>
-          <button onClick={onClose} className="p-1.5 hover:bg-muted rounded-lg">
-            <span className="material-icons-outlined" style={{ fontSize: 18 }}>close</span>
-          </button>
-        </div>
-
-        {/* Body */}
-        <div className="p-6 space-y-5">
-          {/* Format */}
-          <div>
-            <label className="text-xs text-muted-foreground block mb-2">Format</label>
-            <div className="flex gap-2">
-              {(['PDF', 'Excel', 'CSV'] as ExportFormat[]).map(f => (
-                <button
-                  key={f}
-                  onClick={() => setFormat(f)}
-                  className={`flex items-center gap-1.5 px-3 py-2 text-sm rounded-lg border transition-colors ${
-                    format === f
-                      ? 'border-foreground bg-muted'
-                      : 'border-border hover:bg-muted/50'
-                  }`}
-                >
-                  <span className="material-icons-outlined" style={{ fontSize: 16 }}>
-                    {f === 'PDF' ? 'picture_as_pdf' : f === 'Excel' ? 'table_chart' : 'csv'}
-                  </span>
-                  {f}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Scope */}
-          {selectedProducts.length > 0 && (
-            <div>
-              <label className="text-xs text-muted-foreground block mb-2">Export</label>
-              <div className="flex gap-2">
-                <button
-                  onClick={() => setScope('All Products')}
-                  className={`flex-1 px-3 py-2 text-sm rounded-lg border transition-colors ${
-                    scope === 'All Products'
-                      ? 'border-foreground bg-muted'
-                      : 'border-border hover:bg-muted/50'
-                  }`}
-                >
-                  All Products ({schedule.sections.flatMap(s => s.products).length})
-                </button>
-                <button
-                  onClick={() => setScope('Selected Products')}
-                  className={`flex-1 px-3 py-2 text-sm rounded-lg border transition-colors ${
-                    scope === 'Selected Products'
-                      ? 'border-foreground bg-muted'
-                      : 'border-border hover:bg-muted/50'
-                  }`}
-                >
-                  Selected ({selectedProducts.length})
-                </button>
-              </div>
-            </div>
-          )}
-
-          {/* Layout */}
-          <div>
-            <label className="text-xs text-muted-foreground block mb-2">Layout</label>
-            <div className="space-y-2">
-              {(['Full Schedule', 'Summary Only', 'Spec Sheets'] as ExportLayout[]).map(l => (
-                <button
-                  key={l}
-                  onClick={() => setLayout(l)}
-                  className={`w-full px-3 py-2 text-sm text-left rounded-lg border transition-colors ${
-                    layout === l
-                      ? 'border-foreground bg-muted'
-                      : 'border-border hover:bg-muted/50'
-                  }`}
-                >
-                  <span className="font-medium">{l}</span>
-                  <p className="text-xs text-muted-foreground mt-0.5">
-                    {l === 'Full Schedule' && 'Complete product details with specifications'}
-                    {l === 'Summary Only' && 'Condensed overview without detailed specs'}
-                    {l === 'Spec Sheets' && 'Individual spec sheet per product'}
-                  </p>
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Options */}
-          <div className="space-y-2">
-            <label className="text-xs text-muted-foreground block">Include</label>
-            <label className="flex items-center gap-2 cursor-pointer">
-              <input
-                type="checkbox"
-                checked={includePricing}
-                onChange={(e) => setIncludePricing(e.target.checked)}
-                className="w-4 h-4 rounded border-border accent-foreground"
-              />
-              <span className="text-sm">Pricing information</span>
-            </label>
-            <label className="flex items-center gap-2 cursor-pointer">
-              <input
-                type="checkbox"
-                checked={includeNotes}
-                onChange={(e) => setIncludeNotes(e.target.checked)}
-                className="w-4 h-4 rounded border-border accent-foreground"
-              />
-              <span className="text-sm">Internal notes</span>
-            </label>
+        </>
+      }
+    >
+      <div className="px-6 py-5 space-y-6">
+        {/* Default fields */}
+        <div>
+          <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-2">Default Fields</p>
+          <div className="space-y-0.5">
+            {DEFAULT_FIELDS.map(f => <FieldCheckbox key={f} field={f} default />)}
           </div>
         </div>
 
-        {/* Footer */}
-        <div className="flex items-center justify-end gap-2 px-6 py-4 border-t border-border bg-muted/30">
-          <button
-            onClick={onClose}
-            className="px-4 py-2 text-sm border border-border rounded-lg hover:bg-muted transition-colors"
-          >
-            Cancel
-          </button>
-          <button
-            onClick={handleExport}
-            disabled={exporting}
-            className="px-4 py-2 text-sm bg-foreground text-background rounded-lg hover:bg-foreground/90 transition-colors font-medium flex items-center gap-2 disabled:opacity-50"
-          >
-            {exporting ? (
-              <>
-                <span className="material-icons-outlined animate-spin" style={{ fontSize: 16 }}>autorenew</span>
-                Exporting...
-              </>
-            ) : (
-              <>
-                <span className="material-icons-outlined" style={{ fontSize: 16 }}>download</span>
-                Export {format}
-              </>
-            )}
-          </button>
+        {/* Optional fields */}
+        <div>
+          <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-2">Optional Fields</p>
+          <div className="space-y-0.5">
+            {OPTIONAL_FIELDS.map(f => <FieldCheckbox key={f} field={f} />)}
+          </div>
+        </div>
+
+        {/* Summary */}
+        <div className="border-t border-border pt-4">
+          <p className="text-xs text-muted-foreground">
+            {selectedFields.size} field{selectedFields.size !== 1 ? 's' : ''} selected · {selectedProducts.length > 0 ? selectedProducts.length : schedule.sections.flatMap(s => s.products).length} products
+          </p>
         </div>
       </div>
-    </div>
+    </SidePanel>
   );
 }

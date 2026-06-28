@@ -392,6 +392,7 @@ export function ScheduleProductCard({
                     </div>
                     <MenuBtn icon="archive" label="Archive" onClick={() => { setShowMenu(false); onArchive(); }} />
                     <div className="border-t border-border my-1" />
+                    <MenuBtn icon="visibility" label="Preview Spec Sheet" onClick={() => setShowMenu(false)} />
                     <MenuBtn icon="picture_as_pdf" label="Export Spec Sheet" onClick={() => setShowMenu(false)} />
                     <div className="border-t border-border my-1" />
                     <MenuBtn icon="delete_outline" label="Remove from Schedule" onClick={() => { setShowMenu(false); onDelete(); }} danger />

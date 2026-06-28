@@ -216,7 +216,18 @@ function OverviewTab({
         </DetailSection>
 
         {/* Current Phase Progress */}
-        <div className="bg-card border border-border rounded-xl p-5 card-base">
+        <div className="bg-card border border-border rounded-xl p-5 card-base group relative">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="font-medium text-sm">Current Phase</h3>
+            <button
+              onClick={() => onEditCard('phase')}
+              className="opacity-0 group-hover:opacity-100 flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-all"
+              title="Edit"
+            >
+              <span className="material-icons-outlined" style={{ fontSize: 14 }}>edit</span>
+              Edit
+            </button>
+          </div>
           <SimplifiedPhaseProgress
             currentPhase={project.currentPhase}
             phaseProgress={project.phaseProgress ?? 0}
@@ -273,7 +284,7 @@ function OverviewTab({
           )}
         </DetailSection>
 
-        <DetailSection title="Notes" editAction={() => onEditCard('notes')}>
+        <DetailSection title="Notes">
           <NotesPanel notes={project.notes} />
         </DetailSection>
       </div>
@@ -303,18 +314,6 @@ function SimplifiedPhaseProgress({
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <p className="text-sm font-medium">Current Phase</p>
-        <button
-          onClick={() => onPhaseChange(currentPhase)}
-          className="opacity-0 hover:opacity-100 flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-all"
-          title="Edit phase"
-        >
-          <span className="material-icons-outlined" style={{ fontSize: 13 }}>edit</span>
-          Edit
-        </button>
-      </div>
-
       <p className="text-base font-semibold">{currentPhase}</p>
 
       {/* Progress bar — matches ProjectCard styling */}

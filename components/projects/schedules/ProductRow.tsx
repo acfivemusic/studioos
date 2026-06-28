@@ -337,7 +337,8 @@ export function ProductRow({
                       )}
                     </div>
                     <div className="border-t border-border my-1" />
-                    <MenuItem icon="picture_as_pdf" label="Export PDF Spec Sheet" onClick={() => setShowMenu(false)} />
+                    <MenuItem icon="visibility" label="Preview Spec Sheet" onClick={() => setShowMenu(false)} />
+                    <MenuItem icon="picture_as_pdf" label="Export Spec Sheet" onClick={() => setShowMenu(false)} />
                     <div className="border-t border-border my-1" />
                     <MenuItem icon="delete_outline" label="Remove From Schedule" onClick={() => { setShowMenu(false); onDelete(); }} danger />
                   </div>

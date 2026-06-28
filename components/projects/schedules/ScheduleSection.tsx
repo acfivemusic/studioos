@@ -243,8 +243,8 @@ export function ScheduleSection({
                 Add Product
               </button>
               <button className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground border border-dashed border-border/60 rounded-lg px-3 py-1.5 hover:bg-muted/30 hover:border-border transition-all">
-                <span className="material-icons-outlined" style={{ fontSize: 14 }}>link</span>
-                Add from URL
+                <span className="material-icons-outlined" style={{ fontSize: 14 }}>inventory_2</span>
+                Add Product from Library
               </button>
             </div>
           </>
