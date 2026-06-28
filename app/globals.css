@@ -194,6 +194,19 @@
   .filter-item-active { @apply font-medium text-foreground bg-white/60; }
   .filter-item-inactive { @apply text-muted-foreground hover:text-foreground hover:bg-white/40; }
 
+  /* ── Active view toggle (matches sidebar active state) ── */
+  .view-toggle-active {
+    background: rgba(255,255,255,0.45);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    @apply text-foreground font-medium;
+  }
+  .dark .view-toggle-active {
+    background: rgba(255,255,255,0.08);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+  }
+
   /* ── Theme toggle track ── */
   html { color-scheme: light; }
   html.dark { color-scheme: dark; }

@@ -22,7 +22,6 @@ export default function ClientsPage() {
 
   const [search, setSearch] = useState('');
   const [typeFilter, setTypeFilter] = useState('All');
-  const [statusFilter, setStatusFilter] = useState('All');
   const [sortBy, setSortBy] = useState('name');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
 
@@ -40,7 +39,6 @@ export default function ClientsPage() {
     return clients
       .filter(c => {
         if (q && ![c.company, c.primaryContact, c.email, c.phone].some(f => f.toLowerCase().includes(q))) return false;
-        if (statusFilter !== 'All' && c.status !== statusFilter) return false;
         if (typeFilter !== 'All' && c.projectType !== typeFilter) return false;
         return true;
       })
@@ -54,9 +52,9 @@ export default function ClientsPage() {
         const cmp = va.localeCompare(vb);
         return sortOrder === 'asc' ? cmp : -cmp;
       });
-  }, [clients, search, typeFilter, statusFilter, sortBy, sortOrder]);
+  }, [clients, search, typeFilter, sortBy, sortOrder]);
 
-  const hasFilters = typeFilter !== 'All' || statusFilter !== 'All';
+  const hasFilters = typeFilter !== 'All';
 
   const handleCreateClient = () => {
     if (!newClient.name) return;
@@ -131,7 +129,7 @@ export default function ClientsPage() {
             {search && <button onClick={() => setSearch('')} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"><span className="material-icons-outlined" style={{ fontSize: 14 }}>close</span></button>}
           </div>
 
-          {/* Filter */}
+          {/* Filter — Project Type only */}
           <div className="relative">
             <button onClick={() => { setShowFilterMenu(!showFilterMenu); setShowSortMenu(false); }} title="Filter"
               className={`relative flex items-center justify-center w-9 h-9 border rounded-lg transition-colors ${hasFilters ? 'border-foreground/30 bg-muted text-foreground' : 'border-border text-muted-foreground hover:text-foreground hover:bg-muted/50'}`}>
@@ -149,24 +147,16 @@ export default function ClientsPage() {
                       {opt}{typeFilter === opt && <span className="material-icons-outlined" style={{ fontSize: 13 }}>check</span>}
                     </button>
                   ))}
-                  <div className="border-t border-border/40 my-1" />
-                  <p className="px-3 py-1 text-xs font-medium text-muted-foreground uppercase tracking-wide">Status</p>
-                  {['All', ...CLIENT_STATUSES].map(opt => (
-                    <button key={opt} onClick={() => setStatusFilter(opt)}
-                      className={`filter-item ${statusFilter === opt ? 'filter-item-active' : 'filter-item-inactive'}`}>
-                      {opt}{statusFilter === opt && <span className="material-icons-outlined" style={{ fontSize: 13 }}>check</span>}
-                    </button>
-                  ))}
-                  {hasFilters && <div className="border-t border-border/40 px-3 pt-2 pb-1"><button onClick={() => { setTypeFilter('All'); setStatusFilter('All'); }} className="text-xs text-muted-foreground hover:text-foreground">Clear</button></div>}
+                  {hasFilters && <div className="border-t border-border/40 px-3 pt-2 pb-1"><button onClick={() => setTypeFilter('All')} className="text-xs text-muted-foreground hover:text-foreground">Clear</button></div>}
                 </div>
               </>
             )}
           </div>
 
-          {/* Sort */}
+          {/* Sort — includes Status */}
           <div className="relative">
             <button onClick={() => { setShowSortMenu(!showSortMenu); setShowFilterMenu(false); }} title="Sort"
-              className="flex items-center justify-center w-9 h-9 border border-border rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors">
+              className="flex items-center justify-center w-9 h-9 border rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors">
               <span className="material-symbols-outlined" style={{ fontSize: 18 }}>list_arrow</span>
             </button>
             {showSortMenu && (
@@ -190,10 +180,10 @@ export default function ClientsPage() {
 
           {/* View toggle */}
           <div className="flex border border-border rounded-lg overflow-hidden">
-            <button onClick={() => setView('card')} className={`px-2.5 py-1.5 flex items-center transition-colors ${view === 'card' ? 'bg-muted text-foreground' : 'text-muted-foreground hover:bg-muted/50'}`} title="Cards">
+            <button onClick={() => setView('card')} className={`px-2.5 py-1.5 flex items-center transition-colors ${view === 'card' ? 'view-toggle-active' : 'text-muted-foreground hover:bg-muted/50'}`} title="Cards">
               <span className="material-icons-outlined" style={{ fontSize: 16 }}>grid_view</span>
             </button>
-            <button onClick={() => setView('table')} className={`px-2.5 py-1.5 flex items-center border-l border-border transition-colors ${view === 'table' ? 'bg-muted text-foreground' : 'text-muted-foreground hover:bg-muted/50'}`} title="Table">
+            <button onClick={() => setView('table')} className={`px-2.5 py-1.5 flex items-center border-l border-border transition-colors ${view === 'table' ? 'view-toggle-active' : 'text-muted-foreground hover:bg-muted/50'}`} title="Table">
               <span className="material-icons-outlined" style={{ fontSize: 16 }}>table_rows</span>
             </button>
           </div>
@@ -244,7 +234,7 @@ export default function ClientsPage() {
               <tbody>
                 {filtered.map(client => (
                   <tr key={client.id} className="border-b border-border/40 last:border-b-0 hover:bg-muted/15">
-                    <td className="table-cell"><Link href={`/crm/clients/${client.id}`} className="hover:underline"><p className="font-medium">{client.primaryContact}</p><p className="text-xs text-muted-foreground">{client.email}</p></Link></td>
+                    <td className="table-cell"><Link href={`/crm/clients/${client.id}`}><p className="font-medium">{client.primaryContact}</p><p className="text-xs text-muted-foreground">{client.email}</p></Link></td>
                     <td className="table-cell text-muted-foreground">{client.company}</td>
                     <td className="table-cell text-muted-foreground">{client.projects.length}</td>
                     <td className="table-cell text-muted-foreground">{client.phone}</td>

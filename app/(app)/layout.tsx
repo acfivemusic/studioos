@@ -7,6 +7,7 @@ import { usePathname } from 'next/navigation';
 import { useTheme } from 'next-themes';
 import { DesignerProvider } from '@/lib/designer-context';
 import { NotificationProvider } from '@/lib/notification-context';
+import { ProjectsProvider } from '@/lib/projects-context';
 import { NotificationCenter } from '@/components/NotificationCenter';
 import { UserMenu } from '@/components/UserMenu';
 import { mockProjects } from '@/lib/projects-data';
@@ -296,7 +297,9 @@ export default function AppLayout({ children }: { children: ReactNode }) {
   return (
     <DesignerProvider>
       <NotificationProvider>
-        <AppLayoutInner>{children}</AppLayoutInner>
+        <ProjectsProvider>
+          <AppLayoutInner>{children}</AppLayoutInner>
+        </ProjectsProvider>
       </NotificationProvider>
     </DesignerProvider>
   );

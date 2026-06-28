@@ -797,6 +797,19 @@ video {
   background-color: rgb(255 255 255 / 0.4);
   color: hsl(var(--foreground));
 }
+/* ── Active view toggle (matches sidebar active state) ── */
+.view-toggle-active {
+    background: rgba(255,255,255,0.45);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    font-weight: 500;
+    color: hsl(var(--foreground));
+  }
+.dark .view-toggle-active {
+    background: rgba(255,255,255,0.08);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+  }
 /* ── Theme toggle track ── */
 html { color-scheme: light; }
 html.dark { color-scheme: dark; }
@@ -1382,9 +1395,6 @@ html.dark { color-scheme: dark; }
 .max-w-\[120px\] {
   max-width: 120px;
 }
-.max-w-\[200px\] {
-  max-width: 200px;
-}
 .max-w-lg {
   max-width: 32rem;
 }
@@ -1877,9 +1887,6 @@ html.dark { color-scheme: dark; }
 }
 .bg-foreground\/30 {
   background-color: hsl(var(--foreground) / 0.3);
-}
-.bg-foreground\/40 {
-  background-color: hsl(var(--foreground) / 0.4);
 }
 .bg-gray-100 {
   --tw-bg-opacity: 1;

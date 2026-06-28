@@ -2,9 +2,10 @@
 
 import { useState, useMemo } from 'react';
 import Link from 'next/link';
-import { mockProjects, Project, PROJECT_PHASES, PROJECT_STATUSES, PROJECT_TYPES, formatBudget } from '@/lib/projects-data';
+import { Project, PROJECT_PHASES, PROJECT_STATUSES, PROJECT_TYPES, formatBudget } from '@/lib/projects-data';
 import { mockClients } from '@/lib/crm-data';
 import { useDesigners } from '@/lib/designer-context';
+import { useProjects } from '@/lib/projects-context';
 import { EmptyState } from '@/components/crm/EmptyState';
 import { PinButton } from '@/components/crm/PinButton';
 import { ProjectCard } from '@/components/projects/ProjectCard';
@@ -23,6 +24,7 @@ const FILTER_TYPES = ['All Types', ...PROJECT_TYPES];
 
 export default function ProjectsPage() {
   const { designers } = useDesigners();
+  const { projects, togglePin, updateProject, addProject } = useProjects();
   const [view, setView] = useState<'card' | 'table'>('card');
   const [showModal, setShowModal] = useState(false);
 
@@ -43,12 +45,6 @@ export default function ProjectsPage() {
   const [showFilterMenu, setShowFilterMenu] = useState(false);
   const [showSortMenu, setShowSortMenu] = useState(false);
   const [showTypeMenu, setShowTypeMenu] = useState(false);
-
-  const [projects, setProjects] = useState(mockProjects);
-
-  const togglePin = (id: string) => {
-    setProjects((prev) => prev.map((p) => (p.id === id ? { ...p, pinned: !p.pinned } : p)));
-  };
 
   const filtered = useMemo(() => {
     return projects
@@ -119,7 +115,7 @@ export default function ProjectsPage() {
       timeline: [],
       tasks: [],
     };
-    setProjects((prev) => [newProject, ...prev]);
+    addProject(newProject);
   };
 
   return (
@@ -139,13 +135,13 @@ export default function ProjectsPage() {
           <div className="flex border border-border rounded-lg overflow-hidden">
             <button
               onClick={() => setViewMode('all')}
-              className={`px-3 py-1.5 text-sm transition-colors ${viewMode === 'all' ? 'bg-muted text-foreground font-medium' : 'text-muted-foreground hover:bg-muted/50'}`}
+              className={`px-3 py-1.5 text-sm transition-colors ${viewMode === 'all' ? 'view-toggle-active' : 'text-muted-foreground hover:bg-muted/50'}`}
             >
               All
             </button>
             <button
               onClick={() => setViewMode('archived')}
-              className={`px-3 py-1.5 text-sm border-l border-border transition-colors ${viewMode === 'archived' ? 'bg-muted text-foreground font-medium' : 'text-muted-foreground hover:bg-muted/50'}`}
+              className={`px-3 py-1.5 text-sm border-l border-border transition-colors ${viewMode === 'archived' ? 'view-toggle-active' : 'text-muted-foreground hover:bg-muted/50'}`}
             >
               Archived
             </button>
@@ -290,14 +286,14 @@ export default function ProjectsPage() {
             <div className="flex border border-border rounded-lg overflow-hidden">
               <button
                 onClick={() => setView('card')}
-                className={`px-3 py-1.5 text-sm flex items-center gap-1.5 transition-colors ${view === 'card' ? 'bg-muted text-foreground' : 'text-muted-foreground hover:bg-muted/50'}`}
+                className={`px-3 py-1.5 text-sm flex items-center gap-1.5 transition-colors ${view === 'card' ? 'view-toggle-active' : 'text-muted-foreground hover:bg-muted/50'}`}
                 title="Card view"
               >
                 <span className="material-icons-outlined" style={{ fontSize: 15 }}>grid_view</span>
               </button>
               <button
                 onClick={() => setView('table')}
-                className={`px-3 py-1.5 text-sm flex items-center gap-1.5 border-l border-border transition-colors ${view === 'table' ? 'bg-muted text-foreground' : 'text-muted-foreground hover:bg-muted/50'}`}
+                className={`px-3 py-1.5 text-sm flex items-center gap-1.5 border-l border-border transition-colors ${view === 'table' ? 'view-toggle-active' : 'text-muted-foreground hover:bg-muted/50'}`}
                 title="Table view"
               >
                 <span className="material-icons-outlined" style={{ fontSize: 15 }}>table_rows</span>
@@ -326,7 +322,7 @@ export default function ProjectsPage() {
         ) : view === 'card' ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
             {filtered.map((project) => (
-              <ProjectCard key={project.id} project={project} onPin={() => togglePin(project.id)} />
+              <ProjectCard key={project.id} project={project} onPin={() => togglePin(project.id)} onEdit={(updated) => updateProject(project.id, updated)} />
             ))}
             {viewMode === 'all' && (
               <button
@@ -361,7 +357,7 @@ export default function ProjectsPage() {
                       <td className="table-cell">
                         <Link href={`/projects/${project.id}`} className="hover:underline">
                           <p className="font-medium">{project.name}</p>
-                          <p className="text-xs text-muted-foreground truncate max-w-[200px]">{project.address}</p>
+                          <p className="text-xs text-muted-foreground">{project.address}</p>
                         </Link>
                       </td>
                       <td className="table-cell text-muted-foreground">{client?.primaryContact || '—'}</td>

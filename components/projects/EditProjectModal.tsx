@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { Project, PROJECT_PHASES, PROJECT_STATUSES, PROJECT_TYPES, ProjectStatus, ProjectPhase, ProjectType } from '@/lib/projects-data';
 import { ClientSelect } from './ClientSelect';
+import { SelectDropdown } from './SelectDropdown';
 import { DesignerSelect } from '@/components/crm/DesignerSelect';
 import { DatePicker } from '@/components/ui/DatePicker';
 import { SidePanel } from '@/components/ui/SidePanel';
@@ -89,9 +90,7 @@ export function EditProjectModal({ project, onClose, onSave }: EditProjectModalP
               <textarea value={form.description} onChange={(e) => set('description', e.target.value)} rows={3} className="modal-input resize-none" />
             </Field>
             <Field label="Project Type">
-              <select value={form.projectType} onChange={(e) => set('projectType', e.target.value)} className="modal-input">
-                {PROJECT_TYPES.map((t) => <option key={t}>{t}</option>)}
-              </select>
+              <SelectDropdown value={form.projectType} options={PROJECT_TYPES} onChange={(v) => set('projectType', v)} />
             </Field>
             <Field label="Budget">
               <input value={form.estimatedBudget} onChange={(e) => set('estimatedBudget', e.target.value)} className="modal-input" />
@@ -104,14 +103,10 @@ export function EditProjectModal({ project, onClose, onSave }: EditProjectModalP
           <SectionLabel>Status and Phase</SectionLabel>
           <div className="grid grid-cols-2 gap-3">
             <Field label="Current Phase">
-              <select value={form.currentPhase} onChange={(e) => set('currentPhase', e.target.value)} className="modal-input">
-                {PROJECT_PHASES.map((p) => <option key={p}>{p}</option>)}
-              </select>
+              <SelectDropdown value={form.currentPhase} options={PROJECT_PHASES} onChange={(v) => set('currentPhase', v)} />
             </Field>
             <Field label="Status">
-              <select value={form.status} onChange={(e) => set('status', e.target.value)} className="modal-input">
-                {PROJECT_STATUSES.map((s) => <option key={s}>{s}</option>)}
-              </select>
+              <SelectDropdown value={form.status} options={PROJECT_STATUSES} onChange={(v) => set('status', v)} />
             </Field>
           </div>
         </div>

@@ -208,7 +208,7 @@ export default function LeadsPage() {
               <tbody>
                 {filtered.map(lead => (
                   <tr key={lead.id} className="border-b border-border/40 last:border-b-0 hover:bg-muted/15">
-                    <td className="table-cell"><Link href={`/crm/leads/${lead.id}`} className="hover:underline"><p className="font-medium">{lead.firstName} {lead.lastName}</p><p className="text-xs text-muted-foreground">{lead.email}</p></Link></td>
+                    <td className="table-cell"><Link href={`/crm/leads/${lead.id}`}><p className="font-medium">{lead.firstName} {lead.lastName}</p><p className="text-xs text-muted-foreground">{lead.email}</p></Link></td>
                     <td className="table-cell text-muted-foreground">{lead.company}</td>
                     <td className="table-cell text-muted-foreground">{lead.projectType}</td>
                     <td className="table-cell text-muted-foreground">{formatBudget(lead.estimatedBudget)}</td>

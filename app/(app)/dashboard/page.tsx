@@ -2,8 +2,9 @@
 
 import { useState, useMemo } from 'react';
 import Link from 'next/link';
-import { mockProjects, PROJECT_PHASES, Project } from '@/lib/projects-data';
+import { PROJECT_PHASES, Project } from '@/lib/projects-data';
 import { mockClients } from '@/lib/crm-data';
+import { useProjects } from '@/lib/projects-context';
 import { NewProjectModal, NewProjectData } from '@/components/projects/NewProjectModal';
 import { NewLeadModal } from '@/components/crm/NewLeadModal';
 import { SidePanel } from '@/components/ui/SidePanel';
@@ -35,7 +36,7 @@ const priorityColors: Record<string, string> = {
 const STATUS_OPTIONS = ['All Statuses', 'Active', 'On Hold', 'Completed'];
 
 export default function DashboardPage() {
-  const [projects, setProjects] = useState(mockProjects);
+  const { projects, addProject } = useProjects();
   const [showNewProject, setShowNewProject] = useState(false);
   const [showNewLead, setShowNewLead] = useState(false);
   const [showNewInvoice, setShowNewInvoice] = useState(false);
@@ -59,17 +60,24 @@ export default function DashboardPage() {
 
   const upcomingTasks = tasks.filter(t => !t.completed).slice(0, 5);
 
+  // Revenue calculated from project budgets (live)
+  const totalRevenue = useMemo(() =>
+    projects
+      .filter(p => p.status === 'Active')
+      .reduce((sum, p) => sum + p.estimatedBudget, 0),
+    [projects]
+  );
+
   const kpis = useMemo(() => [
-    { label: 'Active Projects', value: projects.filter(p => p.status === 'Active').length.toString(), icon: 'folder_open', change: '+2 this month' },
+    { label: 'Active Projects', value: projects.filter(p => p.status === 'Active').length.toString(), icon: 'folder_open', change: `${projects.filter(p => p.status === 'Active').length} active` },
     { label: 'Pending Tasks', value: tasks.filter(t => !t.completed).length.toString(), icon: 'checklist', change: '2 due today' },
     { label: 'New Leads', value: '3', icon: 'person_add', change: 'This week' },
-    { label: 'Revenue (MTD)', value: 'A$48,000', icon: 'account_balance_wallet', change: '+12% vs last month' },
-  ], [projects, tasks]);
+    { label: 'Revenue (Active)', value: `A$${totalRevenue.toLocaleString('en-AU')}`, icon: 'account_balance_wallet', change: 'From active projects' },
+  ], [projects, tasks, totalRevenue]);
 
   const hasActiveFilter = filterPhase !== 'All' || filterStatus !== 'All Statuses';
 
   const handleNewProject = (data: NewProjectData) => {
-    const { PROJECT_PHASES } = require('@/lib/projects-data');
     const newProject: Project = {
       id: `proj-${Date.now()}`,
       name: data.name,
@@ -97,7 +105,7 @@ export default function DashboardPage() {
       timeline: [],
       tasks: [],
     };
-    setProjects(prev => [newProject, ...prev]);
+    addProject(newProject);
     setShowNewProject(false);
   };
 
@@ -256,7 +264,7 @@ export default function DashboardPage() {
                       <td className="table-cell text-right">
                         <div className="flex items-center justify-end gap-2">
                           <div className="w-20 h-1.5 bg-muted rounded-full overflow-hidden">
-                            <div className="h-full bg-foreground/40 rounded-full transition-all" style={{ width: `${project.progress}%` }} />
+                            <div className="h-full rounded-full transition-all" style={{ width: `${project.progress}%`, background: 'rgba(51,51,51,0.35)' }} />
                           </div>
                           <span className="text-xs text-muted-foreground w-8 text-right">{project.progress}%</span>
                         </div>

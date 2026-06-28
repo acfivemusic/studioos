@@ -3,7 +3,8 @@
 import { useState } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
-import { mockProjects, Project, PROJECT_PHASES, ProjectPhase, formatBudget } from '@/lib/projects-data';
+import { Project, PROJECT_PHASES, ProjectPhase, formatBudget } from '@/lib/projects-data';
+import { useProjects } from '@/lib/projects-context';
 import { SchedulesTab } from '@/components/projects/schedules';
 import { mockClients } from '@/lib/crm-data';
 import { PinButton } from '@/components/crm/PinButton';
@@ -22,7 +23,7 @@ export default function ProjectWorkspacePage() {
   const params = useParams();
   const id = params.id as string;
 
-  const [projects, setProjects] = useState(mockProjects);
+  const { projects, togglePin, setPhaseProgress, changePhase, updateProject, archiveProject, unarchiveProject } = useProjects();
   const [activeTab, setActiveTab] = useState<Tab>('Overview');
   const [showEditModal, setShowEditModal] = useState(false);
   const [showArchiveDialog, setShowArchiveDialog] = useState(false);
@@ -46,35 +47,19 @@ export default function ProjectWorkspacePage() {
   const client = mockClients.find((c) => c.id === project.clientId);
   const isArchived = project.status === 'Archived';
 
-  const togglePin = () =>
-    setProjects((prev) => prev.map((p) => (p.id === id ? { ...p, pinned: !p.pinned } : p)));
-
-  const handlePhaseProgressChange = (progress: number) =>
-    setProjects((prev) => prev.map((p) => (p.id === id ? { ...p, phaseProgress: progress } : p)));
-
   const handlePhaseChange = (phase: ProjectPhase) => {
     const prevPhase = project.currentPhase;
-    const idx = PROJECT_PHASES.indexOf(phase);
-    const newProgress = Math.round(((idx + 1) / PROJECT_PHASES.length) * 100);
-    setProjects((prev) => prev.map((p) =>
-      p.id === id ? { ...p, currentPhase: phase, progress: newProgress, phaseProgress: 0 } : p
-    ));
+    changePhase(id, phase);
     setPhaseConfirmMsg(`${prevPhase} completed successfully.`);
     setTimeout(() => setPhaseConfirmMsg(''), 3500);
   };
 
-  const handleEditSave = (data: Partial<Project>) =>
-    setProjects((prev) => prev.map((p) =>
-      p.id === id ? { ...p, ...data, updatedAt: new Date().toLocaleDateString('en-AU', { day: 'numeric', month: 'short', year: 'numeric' }) } : p
-    ));
+  const handleEditSave = (data: Partial<Project>) => updateProject(id, data);
 
   const handleArchive = () => {
-    setProjects((prev) => prev.map((p) => (p.id === id ? { ...p, status: 'Archived' as const } : p)));
+    archiveProject(id);
     setShowArchiveDialog(false);
   };
-
-  const handleUnarchive = () =>
-    setProjects((prev) => prev.map((p) => (p.id === id ? { ...p, status: 'Active' as const } : p)));
 
   return (
     <>
@@ -82,7 +67,6 @@ export default function ProjectWorkspacePage() {
       {showArchiveDialog && <ArchiveDialog projectName={project.name} onConfirm={handleArchive} onCancel={() => setShowArchiveDialog(false)} />}
 
       <div className="space-y-5">
-        {/* Phase confirmation toast */}
         {phaseConfirmMsg && (
           <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 bg-foreground text-background text-sm px-4 py-2.5 rounded-xl shadow-lg flex items-center gap-2">
             <span className="material-icons-outlined" style={{ fontSize: 16 }}>check_circle</span>
@@ -106,13 +90,13 @@ export default function ProjectWorkspacePage() {
           </div>
 
           <div className="flex items-center gap-2 flex-shrink-0">
-            <PinButton pinned={project.pinned} onToggle={togglePin} />
+            <PinButton pinned={project.pinned} onToggle={() => togglePin(id)} />
             <button onClick={() => setShowEditModal(true)} className="notion-button border border-border text-sm">
               <span className="material-icons-outlined" style={{ fontSize: 16 }}>edit</span>
               Edit
             </button>
             {isArchived ? (
-              <button onClick={handleUnarchive} className="notion-button border border-border text-sm text-amber-600">
+              <button onClick={() => unarchiveProject(id)} className="notion-button border border-border text-sm text-amber-600">
                 <span className="material-icons-outlined" style={{ fontSize: 16 }}>unarchive</span>
                 Unarchive
               </button>
@@ -149,7 +133,7 @@ export default function ProjectWorkspacePage() {
           <OverviewTab
             project={project}
             client={client}
-            onPhaseProgressChange={handlePhaseProgressChange}
+            onPhaseProgressChange={(progress) => setPhaseProgress(id, progress)}
             onPhaseChange={handlePhaseChange}
           />
         )}
@@ -197,7 +181,7 @@ function OverviewTab({
           </div>
         </DetailSection>
 
-        {/* Client — positioned above Phase Progress per spec */}
+        {/* Client */}
         <DetailSection title="Client">
           <div className="space-y-3">
             <div className="flex items-center gap-3">
@@ -228,8 +212,8 @@ function OverviewTab({
           </div>
         </DetailSection>
 
-        {/* Current Phase Progress — simplified */}
-        <div className="bg-card border border-border rounded-xl p-5">
+        {/* Current Phase Progress */}
+        <div className="bg-card border border-border rounded-xl p-5 card-base">
           <SimplifiedPhaseProgress
             currentPhase={project.currentPhase}
             phaseProgress={project.phaseProgress ?? 0}
@@ -318,18 +302,23 @@ function SimplifiedPhaseProgress({
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <p className="text-sm font-medium">Current Phase</p>
-        <span className="text-xs text-muted-foreground px-2 py-0.5 bg-muted rounded-full">
-          {currentIndex + 1} of {PROJECT_PHASES.length}
-        </span>
+        <button
+          onClick={() => onPhaseChange(currentPhase)}
+          className="opacity-0 hover:opacity-100 flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-all"
+          title="Edit phase"
+        >
+          <span className="material-icons-outlined" style={{ fontSize: 13 }}>edit</span>
+          Edit
+        </button>
       </div>
 
       <p className="text-base font-semibold">{currentPhase}</p>
 
-      {/* Progress bar */}
+      {/* Progress bar — matches ProjectCard styling */}
       <div className="h-1.5 bg-muted rounded-full overflow-hidden">
         <div
-          className="h-full bg-foreground rounded-full transition-all duration-500"
-          style={{ width: progressWidth }}
+          className="h-full rounded-full transition-all duration-500"
+          style={{ width: progressWidth, background: 'rgba(51,51,51,0.35)' }}
         />
       </div>
 
