@@ -207,6 +207,39 @@
     box-shadow: 0 1px 3px rgba(0,0,0,0.2);
   }
 
+  /* ── Toolbar icon button (filter / sort / view) — subtle bg + hover ── */
+  .toolbar-icon-btn {
+    @apply flex items-center justify-center w-9 h-9 border border-border rounded-lg text-muted-foreground transition-colors;
+    background: rgba(255,255,255,0.35);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+  }
+  .toolbar-icon-btn:hover {
+    @apply text-foreground bg-muted/60;
+  }
+  .dark .toolbar-icon-btn {
+    background: rgba(255,255,255,0.04);
+  }
+  .dark .toolbar-icon-btn:hover {
+    background: rgba(255,255,255,0.08);
+  }
+  .toolbar-icon-btn-active {
+    @apply border-foreground/30 text-foreground bg-muted;
+  }
+
+  /* ── Glassmorphism toast notification ── */
+  .glass-toast {
+    background: rgba(255,255,255,0.75);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    box-shadow: 0 4px 24px rgba(0,0,0,0.10), 0 1px 4px rgba(0,0,0,0.06);
+    @apply text-foreground border border-border/50;
+  }
+  .dark .glass-toast {
+    background: rgba(30,30,30,0.75);
+    box-shadow: 0 4px 24px rgba(0,0,0,0.3), 0 1px 4px rgba(0,0,0,0.15);
+  }
+
   /* ── Theme toggle track ── */
   html { color-scheme: light; }
   html.dark { color-scheme: dark; }

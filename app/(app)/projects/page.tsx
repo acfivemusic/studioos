@@ -173,9 +173,7 @@ export default function ProjectsPage() {
               <button
                 onClick={() => { setShowTypeMenu(!showTypeMenu); setShowFilterMenu(false); setShowSortMenu(false); }}
                 title="Project Type"
-                className={`relative flex items-center justify-center w-9 h-9 border rounded-lg transition-colors ${
-                  hasTypeFilter ? 'border-foreground/30 bg-muted text-foreground' : 'border-border text-muted-foreground hover:text-foreground hover:bg-muted/50'
-                }`}
+                className={`relative toolbar-icon-btn ${hasTypeFilter ? 'toolbar-icon-btn-active' : ''}`}
               >
                 <span className="material-symbols-outlined" style={{ fontSize: 18 }}>event_list</span>
                 {hasTypeFilter && <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 rounded-full bg-foreground" />}
@@ -201,9 +199,7 @@ export default function ProjectsPage() {
               <button
                 onClick={() => setShowFilterMenu(!showFilterMenu)}
                 title="Filter"
-                className={`relative flex items-center justify-center w-9 h-9 border rounded-lg transition-colors ${
-                  hasActiveFilters ? 'border-foreground/30 bg-muted text-foreground' : 'border-border text-muted-foreground hover:text-foreground hover:bg-muted/50'
-                }`}
+                className={`relative toolbar-icon-btn ${hasActiveFilters ? 'toolbar-icon-btn-active' : ''}`}
               >
                 <span className="material-icons-outlined" style={{ fontSize: 18 }}>filter_list</span>
                 {hasActiveFilters && <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 rounded-full bg-foreground" />}
@@ -242,7 +238,7 @@ export default function ProjectsPage() {
               <button
                 onClick={() => setShowSortMenu(!showSortMenu)}
                 title="Sort"
-                className="flex items-center justify-center w-9 h-9 border border-border rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors"
+                className="toolbar-icon-btn"
               >
                 <span className="material-symbols-outlined" style={{ fontSize: 18 }}>list_arrow</span>
               </button>
@@ -282,7 +278,6 @@ export default function ProjectsPage() {
               )}
             </div>
 
-            {/* View toggle */}
             <div className="flex border border-border rounded-lg overflow-hidden">
               <button
                 onClick={() => setView('card')}
@@ -322,7 +317,7 @@ export default function ProjectsPage() {
         ) : view === 'card' ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
             {filtered.map((project) => (
-              <ProjectCard key={project.id} project={project} onPin={() => togglePin(project.id)} onEdit={(updated) => updateProject(project.id, updated)} />
+              <ProjectCard key={project.id} project={project} onPin={() => togglePin(project.id)} />
             ))}
             {viewMode === 'all' && (
               <button
@@ -355,7 +350,7 @@ export default function ProjectsPage() {
                   return (
                     <tr key={project.id} className="hover:bg-muted/20 cursor-pointer border-b border-border/50 last:border-b-0">
                       <td className="table-cell">
-                        <Link href={`/projects/${project.id}`} className="hover:underline">
+                        <Link href={`/projects/${project.id}`}>
                           <p className="font-medium">{project.name}</p>
                           <p className="text-xs text-muted-foreground">{project.address}</p>
                         </Link>

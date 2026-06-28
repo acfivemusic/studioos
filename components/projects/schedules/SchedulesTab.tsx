@@ -37,10 +37,17 @@ export function SchedulesTab({ projectId }: SchedulesTabProps) {
   const [newName, setNewName] = useState('');
   const [newType, setNewType] = useState(SCHEDULE_TEMPLATES[0]);
   const [searchQuery, setSearchQuery] = useState('');
-  const [showFilterMenu, setShowFilterMenu] = useState(false);
   const [showSortMenu, setShowSortMenu] = useState(false);
+  const [sortBy, setSortBy] = useState<'none' | 'name' | 'date' | 'type'>('name');
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
 
   const activeSchedule = schedules.find(s => s.id === activeScheduleId);
+
+  const SCHEDULE_SORT_OPTIONS = [
+    { label: 'Name', value: 'name' as const },
+    { label: 'Date', value: 'date' as const },
+    { label: 'Type', value: 'type' as const },
+  ];
 
   const handleCreate = () => {
     const s = create(newName || newType);
@@ -89,7 +96,14 @@ export function SchedulesTab({ projectId }: SchedulesTabProps) {
 
   const filtered = schedules.filter(s =>
     !searchQuery || s.name.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  ).sort((a, b) => {
+    if (sortBy === 'none') return 0;
+    let cmp = 0;
+    if (sortBy === 'name') cmp = a.name.localeCompare(b.name);
+    else if (sortBy === 'date') cmp = (a.updatedAt || '').localeCompare(b.updatedAt || '');
+    else if (sortBy === 'type') cmp = a.name.localeCompare(b.name);
+    return sortOrder === 'asc' ? cmp : -cmp;
+  });
 
   return (
     <>
@@ -146,18 +160,18 @@ export function SchedulesTab({ projectId }: SchedulesTabProps) {
         </SidePanel>
       )}
 
-      {/* Toolbar — left: All tab, right: search/filter/sort/new — mirrors Projects page */}
+      {/* Toolbar — left: All tab, right: search/sort/export/preview/new */}
       <div className="flex items-center gap-2 px-4 py-3 border-b border-border/50">
         {/* Left: "All" tab */}
         <div className="flex border border-border rounded-lg overflow-hidden">
-          <button className="px-3 py-1.5 text-sm bg-muted text-foreground font-medium">
+          <button className="px-3 py-1.5 text-sm view-toggle-active">
             All
           </button>
         </div>
 
         <div className="flex-1" />
 
-        {/* Right: Search */}
+        {/* Search */}
         <div className="relative flex-shrink-0">
           <span className="material-icons-outlined absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none" style={{ fontSize: 16 }}>search</span>
           <input
@@ -169,31 +183,73 @@ export function SchedulesTab({ projectId }: SchedulesTabProps) {
           />
         </div>
 
-        {/* Filter icon-only */}
-        <button
-          onClick={() => setShowFilterMenu(!showFilterMenu)}
-          title="Filter"
-          className="flex items-center justify-center w-9 h-9 border border-border rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors"
-        >
-          <span className="material-icons-outlined" style={{ fontSize: 18 }}>filter_list</span>
-        </button>
-
         {/* Sort icon-only */}
+        <div className="relative">
+          <button
+            onClick={() => setShowSortMenu(!showSortMenu)}
+            title="Sort"
+            className="toolbar-icon-btn"
+          >
+            <span className="material-symbols-outlined" style={{ fontSize: 18 }}>list_arrow</span>
+          </button>
+          {showSortMenu && (
+            <>
+              <div className="fixed inset-0 z-20" onClick={() => setShowSortMenu(false)} />
+              <div className="absolute right-0 mt-1 w-48 bg-popover border border-border rounded-xl shadow-lg z-30 py-2 overflow-hidden">
+                <p className="px-3 py-1 text-xs font-medium text-muted-foreground uppercase tracking-wide">Sort By</p>
+                {SCHEDULE_SORT_OPTIONS.map(opt => (
+                  <button
+                    key={opt.value}
+                    onClick={() => { setSortBy(opt.value); setShowSortMenu(false); }}
+                    className={`filter-item ${sortBy === opt.value ? 'filter-item-active' : 'filter-item-inactive'}`}
+                  >
+                    {opt.label}
+                    {sortBy === opt.value && <span className="material-icons-outlined" style={{ fontSize: 13 }}>check</span>}
+                  </button>
+                ))}
+                <div className="border-t border-border/40 my-1" />
+                <button
+                  onClick={() => { setSortOrder('asc'); setShowSortMenu(false); }}
+                  className={`filter-item ${sortOrder === 'asc' ? 'filter-item-active' : 'filter-item-inactive'}`}
+                >
+                  Ascending
+                  {sortOrder === 'asc' && <span className="material-icons-outlined" style={{ fontSize: 13 }}>check</span>}
+                </button>
+                <button
+                  onClick={() => { setSortOrder('desc'); setShowSortMenu(false); }}
+                  className={`filter-item ${sortOrder === 'desc' ? 'filter-item-active' : 'filter-item-inactive'}`}
+                >
+                  Descending
+                  {sortOrder === 'desc' && <span className="material-icons-outlined" style={{ fontSize: 13 }}>check</span>}
+                </button>
+              </div>
+            </>
+          )}
+        </div>
+
+        {/* Export PDF icon-only */}
         <button
-          onClick={() => setShowSortMenu(!showSortMenu)}
-          title="Sort"
-          className="flex items-center justify-center w-9 h-9 border border-border rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors"
+          title="Export PDF"
+          className="toolbar-icon-btn"
         >
-          <span className="material-symbols-outlined" style={{ fontSize: 18 }}>list_arrow</span>
+          <span className="material-icons-outlined" style={{ fontSize: 18 }}>picture_as_pdf</span>
         </button>
 
-        {/* New Schedule */}
+        {/* Preview PDF icon-only */}
+        <button
+          title="Preview PDF"
+          className="toolbar-icon-btn"
+        >
+          <span className="material-icons-outlined" style={{ fontSize: 18 }}>visibility</span>
+        </button>
+
+        {/* New Section */}
         <button
           onClick={() => setShowNewPanel(true)}
           className="flex items-center gap-1.5 px-3 py-1.5 text-sm bg-foreground text-background rounded-lg hover:bg-foreground/90 transition-colors font-medium"
         >
           <span className="material-icons-outlined" style={{ fontSize: 16 }}>add</span>
-          New Schedule
+          New Section
         </button>
       </div>
 

@@ -159,7 +159,7 @@ function GlobalSearch() {
         onKeyDown={(e) => {
           if (e.key === 'Enter' && results.length > 0) window.location.href = results[0].items[0].href;
         }}
-        className="w-full pl-8 pr-3 py-1.5 text-sm border border-border rounded-lg bg-white/40 placeholder:text-muted-foreground outline-none focus:border-foreground/20 transition-colors"
+        className="w-full pl-8 pr-3 py-1.5 text-sm border border-border rounded-lg bg-transparent placeholder:text-muted-foreground outline-none focus:border-foreground/30 transition-colors"
       />
       {open && query.trim() && (
         <div className="absolute top-full left-0 right-0 mt-1.5 bg-popover border border-border rounded-xl shadow-xl z-[60] overflow-hidden">

@@ -132,7 +132,7 @@ export default function ClientsPage() {
           {/* Filter — Project Type only */}
           <div className="relative">
             <button onClick={() => { setShowFilterMenu(!showFilterMenu); setShowSortMenu(false); }} title="Filter"
-              className={`relative flex items-center justify-center w-9 h-9 border rounded-lg transition-colors ${hasFilters ? 'border-foreground/30 bg-muted text-foreground' : 'border-border text-muted-foreground hover:text-foreground hover:bg-muted/50'}`}>
+              className={`relative toolbar-icon-btn ${hasFilters ? 'toolbar-icon-btn-active' : ''}`}>
               <span className="material-icons-outlined" style={{ fontSize: 18 }}>filter_list</span>
               {hasFilters && <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 rounded-full bg-foreground" />}
             </button>
@@ -156,7 +156,7 @@ export default function ClientsPage() {
           {/* Sort — includes Status */}
           <div className="relative">
             <button onClick={() => { setShowSortMenu(!showSortMenu); setShowFilterMenu(false); }} title="Sort"
-              className="flex items-center justify-center w-9 h-9 border rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors">
+              className="toolbar-icon-btn">
               <span className="material-symbols-outlined" style={{ fontSize: 18 }}>list_arrow</span>
             </button>
             {showSortMenu && (

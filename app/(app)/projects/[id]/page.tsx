@@ -68,7 +68,7 @@ export default function ProjectWorkspacePage() {
 
       <div className="space-y-5">
         {phaseConfirmMsg && (
-          <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 bg-foreground text-background text-sm px-4 py-2.5 rounded-xl shadow-lg flex items-center gap-2">
+          <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 glass-toast text-sm px-4 py-2.5 rounded-xl flex items-center gap-2 animate-in fade-in slide-in-from-bottom-4 duration-300">
             <span className="material-icons-outlined" style={{ fontSize: 16 }}>check_circle</span>
             {phaseConfirmMsg}
           </div>
@@ -135,6 +135,7 @@ export default function ProjectWorkspacePage() {
             client={client}
             onPhaseProgressChange={(progress) => setPhaseProgress(id, progress)}
             onPhaseChange={handlePhaseChange}
+            onEditCard={(card) => setShowEditModal(true)}
           />
         )}
 
@@ -157,18 +158,20 @@ function OverviewTab({
   client,
   onPhaseProgressChange,
   onPhaseChange,
+  onEditCard,
 }: {
   project: Project;
   client: any;
   onPhaseProgressChange: (progress: number) => void;
   onPhaseChange: (phase: ProjectPhase) => void;
+  onEditCard: (card: string) => void;
 }) {
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
       {/* Left Column */}
       <div className="lg:col-span-1 space-y-4">
         {/* Project Summary */}
-        <DetailSection title="Project Summary">
+        <DetailSection title="Project Summary" editAction={() => onEditCard('summary')}>
           <div className="space-y-3">
             <DetailField label="Project Name" value={project.name} />
             <DetailField label="Address" value={project.address} />
@@ -182,7 +185,7 @@ function OverviewTab({
         </DetailSection>
 
         {/* Client */}
-        <DetailSection title="Client">
+        <DetailSection title="Client" editAction={() => onEditCard('client')}>
           <div className="space-y-3">
             <div className="flex items-center gap-3">
               <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center flex-shrink-0">
@@ -223,7 +226,7 @@ function OverviewTab({
         </div>
 
         {/* Team */}
-        <DetailSection title="Team">
+        <DetailSection title="Team" editAction={() => onEditCard('team')}>
           <div className="space-y-3">
             {[
               { name: project.team.projectManager, role: 'Project Manager' },
@@ -247,13 +250,13 @@ function OverviewTab({
       {/* Right Columns */}
       <div className="lg:col-span-2 space-y-4">
         {project.description && (
-          <DetailSection title="Description">
+          <DetailSection title="Description" editAction={() => onEditCard('description')}>
             <p className="text-sm text-muted-foreground leading-relaxed">{project.description}</p>
           </DetailSection>
         )}
 
         {(project.builder || project.architect || project.siteNotes) && (
-          <DetailSection title="Additional Details">
+          <DetailSection title="Additional Details" editAction={() => onEditCard('details')}>
             <div className="space-y-3">
               {project.builder && <DetailField label="Builder" value={project.builder} />}
               {project.architect && <DetailField label="Architect" value={project.architect} />}
@@ -262,7 +265,7 @@ function OverviewTab({
           </DetailSection>
         )}
 
-        <DetailSection title="Recent Activity">
+        <DetailSection title="Recent Activity" editAction={() => onEditCard('activity')}>
           {project.timeline.length === 0 ? (
             <EmptyState icon="history" title="No activity yet" description="Activity will appear here as the project progresses." />
           ) : (
@@ -270,7 +273,7 @@ function OverviewTab({
           )}
         </DetailSection>
 
-        <DetailSection title="Notes">
+        <DetailSection title="Notes" editAction={() => onEditCard('notes')}>
           <NotesPanel notes={project.notes} />
         </DetailSection>
       </div>
@@ -347,7 +350,7 @@ function SimplifiedPhaseProgress({
         <div className="relative pt-1">
           <button
             onClick={() => setShowNextPhaseMenu(!showNextPhaseMenu)}
-            className="w-full flex items-center justify-between px-3 py-2 bg-foreground text-background rounded-lg text-sm font-medium hover:bg-foreground/90 transition-colors"
+            className="w-full flex items-center justify-between px-3 py-2 notion-button border border-border text-sm font-medium hover:bg-muted/50 transition-colors"
           >
             <span className="flex items-center gap-2">
               <span className="material-icons-outlined" style={{ fontSize: 16 }}>arrow_forward</span>

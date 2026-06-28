@@ -8,24 +8,37 @@ interface DetailSectionProps {
     icon?: string;
     onClick: () => void;
   };
+  editAction?: () => void;
 }
 
-export function DetailSection({ title, children, action }: DetailSectionProps) {
+export function DetailSection({ title, children, action, editAction }: DetailSectionProps) {
   return (
-    <div className="bg-card border border-border rounded-xl p-5 card-base">
+    <div className="bg-card border border-border rounded-xl p-5 card-base group relative">
       <div className="flex items-center justify-between mb-4">
         <h3 className="font-medium text-sm">{title}</h3>
-        {action && (
-          <button
-            onClick={action.onClick}
-            className="notion-button text-muted-foreground text-xs"
-          >
-            {action.icon && (
-              <span className="material-icons-outlined" style={{ fontSize: 14 }}>{action.icon}</span>
-            )}
-            {action.label}
-          </button>
-        )}
+        <div className="flex items-center gap-2">
+          {editAction && (
+            <button
+              onClick={editAction}
+              className="opacity-0 group-hover:opacity-100 flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-all"
+              title="Edit"
+            >
+              <span className="material-icons-outlined" style={{ fontSize: 14 }}>edit</span>
+              Edit
+            </button>
+          )}
+          {action && (
+            <button
+              onClick={action.onClick}
+              className="notion-button text-muted-foreground text-xs"
+            >
+              {action.icon && (
+                <span className="material-icons-outlined" style={{ fontSize: 14 }}>{action.icon}</span>
+              )}
+              {action.label}
+            </button>
+          )}
+        </div>
       </div>
       {children}
     </div>

@@ -83,7 +83,7 @@ export default function LeadsPage() {
           {/* Filter */}
           <div className="relative">
             <button onClick={() => { setShowFilterMenu(!showFilterMenu); setShowSortMenu(false); }} title="Filter"
-              className={`relative flex items-center justify-center w-9 h-9 border rounded-lg transition-colors ${hasFilters ? 'border-foreground/30 bg-muted text-foreground' : 'border-border text-muted-foreground hover:text-foreground hover:bg-muted/50'}`}>
+              className={`relative toolbar-icon-btn ${hasFilters ? 'toolbar-icon-btn-active' : ''}`}>
               <span className="material-icons-outlined" style={{ fontSize: 18 }}>filter_list</span>
               {hasFilters && <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 rounded-full bg-foreground" />}
             </button>
@@ -115,7 +115,7 @@ export default function LeadsPage() {
           {/* Sort */}
           <div className="relative">
             <button onClick={() => { setShowSortMenu(!showSortMenu); setShowFilterMenu(false); }} title="Sort"
-              className="flex items-center justify-center w-9 h-9 border border-border rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors">
+              className="toolbar-icon-btn">
               <span className="material-symbols-outlined" style={{ fontSize: 18 }}>list_arrow</span>
             </button>
             {showSortMenu && (
@@ -143,10 +143,10 @@ export default function LeadsPage() {
 
           {/* View toggle */}
           <div className="flex border border-border rounded-lg overflow-hidden">
-            <button onClick={() => setView('card')} className={`px-2.5 py-1.5 flex items-center transition-colors ${view === 'card' ? 'bg-muted text-foreground' : 'text-muted-foreground hover:bg-muted/50'}`} title="Cards">
+            <button onClick={() => setView('card')} className={`px-2.5 py-1.5 flex items-center transition-colors ${view === 'card' ? 'view-toggle-active' : 'text-muted-foreground hover:bg-muted/50'}`} title="Cards">
               <span className="material-icons-outlined" style={{ fontSize: 16 }}>grid_view</span>
             </button>
-            <button onClick={() => setView('table')} className={`px-2.5 py-1.5 flex items-center border-l border-border transition-colors ${view === 'table' ? 'bg-muted text-foreground' : 'text-muted-foreground hover:bg-muted/50'}`} title="Table">
+            <button onClick={() => setView('table')} className={`px-2.5 py-1.5 flex items-center border-l border-border transition-colors ${view === 'table' ? 'view-toggle-active' : 'text-muted-foreground hover:bg-muted/50'}`} title="Table">
               <span className="material-icons-outlined" style={{ fontSize: 16 }}>table_rows</span>
             </button>
           </div>

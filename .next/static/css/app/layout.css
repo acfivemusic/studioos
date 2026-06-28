@@ -810,6 +810,53 @@ video {
     background: rgba(255,255,255,0.08);
     box-shadow: 0 1px 3px rgba(0,0,0,0.2);
   }
+/* ── Toolbar icon button (filter / sort / view) — subtle bg + hover ── */
+.toolbar-icon-btn {
+  display: flex;
+  height: 2.25rem;
+  width: 2.25rem;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius);
+  border-width: 1px;
+  border-color: hsl(var(--border));
+  color: hsl(var(--muted-foreground));
+  transition-property: color, background-color, border-color, text-decoration-color, fill, stroke;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 150ms;
+    background: rgba(255,255,255,0.35);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+}
+.toolbar-icon-btn:hover {
+  background-color: hsl(var(--muted) / 0.6);
+  color: hsl(var(--foreground));
+}
+.dark .toolbar-icon-btn {
+    background: rgba(255,255,255,0.04);
+  }
+.dark .toolbar-icon-btn:hover {
+    background: rgba(255,255,255,0.08);
+  }
+.toolbar-icon-btn-active {
+  border-color: hsl(var(--foreground) / 0.3);
+  background-color: hsl(var(--muted));
+  color: hsl(var(--foreground));
+}
+/* ── Glassmorphism toast notification ── */
+.glass-toast {
+    background: rgba(255,255,255,0.75);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    box-shadow: 0 4px 24px rgba(0,0,0,0.10), 0 1px 4px rgba(0,0,0,0.06);
+    border-width: 1px;
+    border-color: hsl(var(--border) / 0.5);
+    color: hsl(var(--foreground));
+  }
+.dark .glass-toast {
+    background: rgba(30,30,30,0.75);
+    box-shadow: 0 4px 24px rgba(0,0,0,0.3), 0 1px 4px rgba(0,0,0,0.15);
+  }
 /* ── Theme toggle track ── */
 html { color-scheme: light; }
 html.dark { color-scheme: dark; }
@@ -1870,9 +1917,6 @@ html.dark { color-scheme: dark; }
 .bg-card {
   background-color: hsl(var(--card));
 }
-.bg-card\/60 {
-  background-color: hsl(var(--card) / 0.6);
-}
 .bg-card\/80 {
   background-color: hsl(var(--card) / 0.8);
 }
@@ -1957,9 +2001,6 @@ html.dark { color-scheme: dark; }
 .bg-white {
   --tw-bg-opacity: 1;
   background-color: rgb(255 255 255 / var(--tw-bg-opacity));
-}
-.bg-white\/40 {
-  background-color: rgb(255 255 255 / 0.4);
 }
 .bg-gradient-to-br {
   background-image: linear-gradient(to bottom right, var(--tw-gradient-stops));
@@ -2607,6 +2648,9 @@ html.dark { color-scheme: dark; }
   --tw-enter-translate-x: initial;
   --tw-enter-translate-y: initial;
 }
+.fade-in {
+  --tw-enter-opacity: 0;
+}
 .fade-in-0 {
   --tw-enter-opacity: 0;
 }
@@ -2615,6 +2659,9 @@ html.dark { color-scheme: dark; }
 }
 .zoom-in-95 {
   --tw-enter-scale: .95;
+}
+.slide-in-from-bottom-4 {
+  --tw-enter-translate-y: 1rem;
 }
 .duration-1000 {
   animation-duration: 1000ms;
@@ -2800,10 +2847,6 @@ html.dark { color-scheme: dark; }
   background-color: rgb(0 0 0 / 0.7);
 }
 
-.hover\:bg-card:hover {
-  background-color: hsl(var(--card));
-}
-
 .hover\:bg-destructive\/80:hover {
   background-color: hsl(var(--destructive) / 0.8);
 }
@@ -2948,10 +2991,6 @@ html.dark { color-scheme: dark; }
 
 .focus\:border-border\/60:focus {
   border-color: hsl(var(--border) / 0.6);
-}
-
-.focus\:border-foreground\/20:focus {
-  border-color: hsl(var(--foreground) / 0.2);
 }
 
 .focus\:border-foreground\/30:focus {

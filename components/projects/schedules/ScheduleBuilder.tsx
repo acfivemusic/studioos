@@ -14,23 +14,22 @@ interface ScheduleBuilderProps {
 }
 
 const SORT_OPTIONS = [
-  { label: 'Product Name', value: 'name' },
+  { label: 'None', value: 'none' },
+  { label: 'Order Reference', value: 'orderRef' },
+  { label: 'Doc Code', value: 'docCode' },
+  { label: 'Brand', value: 'brand' },
   { label: 'Supplier', value: 'supplier' },
-  { label: 'Section', value: 'section' },
-  { label: 'Last Updated', value: 'updated' },
-  { label: 'Created', value: 'created' },
+  { label: 'Status', value: 'status' },
+  { label: 'Product Description', value: 'description' },
+  { label: 'Product Details', value: 'details' },
 ];
-
-const FILTER_OPTIONS = ['All', 'Draft', 'Pending Approval', 'Approved', 'Ordered', 'Installed', 'Archived', 'Flagged'];
 
 export function ScheduleBuilder({ schedule, onChange }: ScheduleBuilderProps) {
   const [searchQuery, setSearchQuery] = useState('');
-  const [filterStatus, setFilterStatus] = useState('All');
-  const [sortBy, setSortBy] = useState('name');
+  const [sortBy, setSortBy] = useState('none');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
   const [selectedProducts, setSelectedProducts] = useState<string[]>([]);
   const [showExportModal, setShowExportModal] = useState(false);
-  const [showFilterMenu, setShowFilterMenu] = useState(false);
   const [showSortMenu, setShowSortMenu] = useState(false);
   const [showBulkMenu, setShowBulkMenu] = useState(false);
 
@@ -260,26 +259,20 @@ export function ScheduleBuilder({ schedule, onChange }: ScheduleBuilderProps) {
 
   const displaySections = useMemo(() => {
     return schedule.sections.map(sec => {
-      if (!searchQuery && filterStatus === 'All') return sec;
+      if (!searchQuery) return sec;
       const products = sec.products.filter(p => {
         const q = searchQuery.toLowerCase();
-        const matchesSearch = !searchQuery || [p.name, p.brand, p.supplier, p.docCode, p.description, p.productType, p.sku, p.material, p.finish, p.notes]
+        return [p.name, p.brand, p.supplier, p.docCode, p.description, p.productType, p.sku, p.material, p.finish, p.notes]
           .some(v => v?.toLowerCase().includes(q));
-        const matchesFilter = filterStatus === 'All' ? true
-          : filterStatus === 'Flagged' ? p.flags.length > 0
-          : p.status === filterStatus;
-        return matchesSearch && matchesFilter;
       });
       return { ...sec, products };
     }).filter(sec => {
-      if (!searchQuery && filterStatus === 'All') return true;
+      if (!searchQuery) return true;
       return sec.products.length > 0;
     });
-  }, [schedule.sections, searchQuery, filterStatus]);
+  }, [schedule.sections, searchQuery, sortBy, sortOrder]);
 
   const allFilteredProducts = displaySections.flatMap(s => s.products);
-  const activeFilterLabel = filterStatus !== 'All' ? filterStatus : null;
-  const activeSortLabel = SORT_OPTIONS.find(o => o.value === sortBy)?.label ?? 'Sort';
 
   return (
     <div>
@@ -306,79 +299,44 @@ export function ScheduleBuilder({ schedule, onChange }: ScheduleBuilderProps) {
           )}
         </div>
 
-        {/* Filter — icon only */}
-        <div className="relative">
-          <button
-            onClick={() => setShowFilterMenu(!showFilterMenu)}
-            title="Filter"
-            className={`flex items-center justify-center w-9 h-9 border rounded-lg transition-colors ${
-              activeFilterLabel ? 'border-foreground/30 bg-muted text-foreground' : 'border-border text-muted-foreground hover:text-foreground hover:bg-muted/50'
-            }`}
-          >
-            <span className="material-icons-outlined" style={{ fontSize: 18 }}>filter_list</span>
-          </button>
-          {showFilterMenu && (
-            <>
-              <div className="fixed inset-0 z-20" onClick={() => setShowFilterMenu(false)} />
-              <div className="absolute left-0 mt-1 w-52 bg-popover border border-border rounded-xl shadow-lg z-30 py-1">
-                {FILTER_OPTIONS.map(opt => (
-                  <button
-                    key={opt}
-                    onClick={() => { setFilterStatus(opt); setShowFilterMenu(false); }}
-                    className={`flex items-center justify-between w-full px-3 py-2 text-sm hover:bg-muted transition-colors text-left ${
-                      filterStatus === opt ? 'font-medium text-foreground' : 'text-muted-foreground'
-                    }`}
-                  >
-                    {opt}
-                    {filterStatus === opt && <span className="material-icons-outlined" style={{ fontSize: 14 }}>check</span>}
-                  </button>
-                ))}
-              </div>
-            </>
-          )}
-        </div>
-
         {/* Sort — icon only */}
         <div className="relative">
           <button
             onClick={() => setShowSortMenu(!showSortMenu)}
             title="Sort"
-            className="flex items-center justify-center w-9 h-9 border border-border rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors"
+            className="toolbar-icon-btn"
           >
             <span className="material-symbols-outlined" style={{ fontSize: 18 }}>list_arrow</span>
           </button>
           {showSortMenu && (
             <>
               <div className="fixed inset-0 z-20" onClick={() => setShowSortMenu(false)} />
-              <div className="absolute left-0 mt-1 w-52 bg-popover border border-border rounded-xl shadow-lg z-30 py-1">
-                <p className="px-3 py-1.5 text-xs font-medium text-muted-foreground">Sort By</p>
+              <div className="absolute right-0 mt-1 w-52 bg-popover border border-border rounded-xl shadow-lg z-30 py-2 overflow-hidden">
+                <p className="px-3 py-1 text-xs font-medium text-muted-foreground uppercase tracking-wide">Sort By</p>
                 {SORT_OPTIONS.map(opt => (
                   <button
                     key={opt.value}
                     onClick={() => { setSortBy(opt.value); setShowSortMenu(false); }}
-                    className={`flex items-center justify-between w-full px-3 py-2 text-sm hover:bg-muted transition-colors text-left ${
-                      sortBy === opt.value ? 'font-medium text-foreground' : 'text-muted-foreground'
-                    }`}
+                    className={`filter-item ${sortBy === opt.value ? 'filter-item-active' : 'filter-item-inactive'}`}
                   >
                     {opt.label}
-                    {sortBy === opt.value && <span className="material-icons-outlined" style={{ fontSize: 14 }}>check</span>}
+                    {sortBy === opt.value && <span className="material-icons-outlined" style={{ fontSize: 13 }}>check</span>}
                   </button>
                 ))}
-                <div className="border-t border-border my-1" />
-                <p className="px-3 py-1.5 text-xs font-medium text-muted-foreground">Order</p>
+                <div className="border-t border-border/40 my-1" />
                 <button
                   onClick={() => { setSortOrder('asc'); setShowSortMenu(false); }}
-                  className={`flex items-center justify-between w-full px-3 py-2 text-sm hover:bg-muted transition-colors text-left ${sortOrder === 'asc' ? 'font-medium text-foreground' : 'text-muted-foreground'}`}
+                  className={`filter-item ${sortOrder === 'asc' ? 'filter-item-active' : 'filter-item-inactive'}`}
                 >
                   Ascending
-                  {sortOrder === 'asc' && <span className="material-icons-outlined" style={{ fontSize: 14 }}>check</span>}
+                  {sortOrder === 'asc' && <span className="material-icons-outlined" style={{ fontSize: 13 }}>check</span>}
                 </button>
                 <button
                   onClick={() => { setSortOrder('desc'); setShowSortMenu(false); }}
-                  className={`flex items-center justify-between w-full px-3 py-2 text-sm hover:bg-muted transition-colors text-left ${sortOrder === 'desc' ? 'font-medium text-foreground' : 'text-muted-foreground'}`}
+                  className={`filter-item ${sortOrder === 'desc' ? 'filter-item-active' : 'filter-item-inactive'}`}
                 >
                   Descending
-                  {sortOrder === 'desc' && <span className="material-icons-outlined" style={{ fontSize: 14 }}>check</span>}
+                  {sortOrder === 'desc' && <span className="material-icons-outlined" style={{ fontSize: 13 }}>check</span>}
                 </button>
               </div>
             </>
@@ -428,13 +386,21 @@ export function ScheduleBuilder({ schedule, onChange }: ScheduleBuilderProps) {
           </div>
         )}
 
-        {/* Export */}
+        {/* Export PDF icon-only */}
         <button
           onClick={() => setShowExportModal(true)}
-          className="flex items-center gap-1.5 px-3 py-1.5 text-sm border border-border rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors"
+          title="Export PDF"
+          className="toolbar-icon-btn"
         >
-          <span className="material-icons-outlined" style={{ fontSize: 15 }}>picture_as_pdf</span>
-          Export
+          <span className="material-icons-outlined" style={{ fontSize: 18 }}>picture_as_pdf</span>
+        </button>
+
+        {/* Preview PDF icon-only */}
+        <button
+          title="Preview PDF"
+          className="toolbar-icon-btn"
+        >
+          <span className="material-icons-outlined" style={{ fontSize: 18 }}>visibility</span>
         </button>
 
         {/* New Section */}
@@ -506,10 +472,10 @@ export function ScheduleBuilder({ schedule, onChange }: ScheduleBuilderProps) {
           </div>
         )}
 
-        {displaySections.length === 0 && schedule.sections.length > 0 && (searchQuery || filterStatus !== 'All') && (
+        {displaySections.length === 0 && schedule.sections.length > 0 && searchQuery && (
           <div className="text-center py-12 text-muted-foreground">
             <p className="text-sm">No products match your filters</p>
-            <button onClick={() => { setSearchQuery(''); setFilterStatus('All'); }} className="text-xs hover:underline mt-2">Clear filters</button>
+            <button onClick={() => setSearchQuery('')} className="text-xs hover:underline mt-2">Clear search</button>
           </div>
         )}
       </div>
