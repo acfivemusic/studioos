@@ -1,9 +1,8 @@
 {
   "/(app)/dashboard/page": "app/(app)/dashboard/page.js",
   "/(app)/projects/page": "app/(app)/projects/page.js",
-  "/(app)/products/page": "app/(app)/products/page.js",
   "/(app)/finance/page": "app/(app)/finance/page.js",
   "/(app)/tasks/page": "app/(app)/tasks/page.js",
-  "/(app)/projects/[id]/page": "app/(app)/projects/[id]/page.js",
-  "/(app)/crm/leads/page": "app/(app)/crm/leads/page.js"
+  "/(app)/vendors/page": "app/(app)/vendors/page.js",
+  "/(app)/projects/[id]/page": "app/(app)/projects/[id]/page.js"
 }
