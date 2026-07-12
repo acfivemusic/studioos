@@ -87,18 +87,6 @@ export function ClientSelect({ value, onChange, onAddNew }: ClientSelectProps) {
             )}
           </div>
 
-          {onAddNew && (
-            <div className="border-t border-border p-1">
-              <button
-                type="button"
-                onClick={() => { setOpen(false); onAddNew(); }}
-                className="flex items-center gap-2 w-full px-3 py-2 text-sm text-left text-muted-foreground hover:text-foreground hover:bg-muted rounded-lg transition-colors"
-              >
-                <span className="material-icons-outlined" style={{ fontSize: 15 }}>add</span>
-                New Client
-              </button>
-            </div>
-          )}
         </div>
       )}
     </div>

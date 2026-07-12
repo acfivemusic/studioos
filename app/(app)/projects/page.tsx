@@ -4,10 +4,8 @@ import { useState, useMemo } from 'react';
 import Link from 'next/link';
 import { Project, PROJECT_PHASES, PROJECT_STATUSES, PROJECT_TYPES, formatBudget } from '@/lib/projects-data';
 import { mockClients } from '@/lib/crm-data';
-import { useDesigners } from '@/lib/designer-context';
 import { useProjects } from '@/lib/projects-context';
 import { EmptyState } from '@/components/crm/EmptyState';
-import { PinButton } from '@/components/crm/PinButton';
 import { ProjectCard } from '@/components/projects/ProjectCard';
 import { ProjectStatusBadge } from '@/components/projects/ProjectStatusBadge';
 import { NewProjectModal, NewProjectData } from '@/components/projects/NewProjectModal';
@@ -23,7 +21,6 @@ const FILTER_STATUSES = ['All Statuses', ...PROJECT_STATUSES];
 const FILTER_TYPES = ['All Types', ...PROJECT_TYPES];
 
 export default function ProjectsPage() {
-  const { designers } = useDesigners();
   const { projects, togglePin, updateProject, addProject } = useProjects();
   const [view, setView] = useState<'card' | 'table'>('card');
   const [showModal, setShowModal] = useState(false);
@@ -159,7 +156,7 @@ export default function ProjectsPage() {
                 placeholder="Search projects..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="pl-8 pr-3 py-1.5 text-sm border border-border rounded-lg bg-background w-52 placeholder:text-muted-foreground outline-none focus:border-foreground/30 transition-colors"
+                className="pl-8 pr-3 h-8 text-sm border border-border rounded-lg bg-background w-52 placeholder:text-muted-foreground outline-none focus:border-foreground/30 transition-colors"
               />
               {search && (
                 <button onClick={() => setSearch('')} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
@@ -298,7 +295,7 @@ export default function ProjectsPage() {
             {/* New Project */}
             <button
               onClick={() => setShowModal(true)}
-              className="flex items-center gap-1.5 px-3 py-1.5 text-sm bg-foreground text-background rounded-lg hover:bg-foreground/90 transition-colors font-medium"
+              className="flex items-center gap-1.5 px-3 h-8 text-sm bg-foreground text-background rounded-lg hover:bg-foreground/90 transition-colors font-medium"
             >
               <span className="material-icons-outlined" style={{ fontSize: 16 }}>add</span>
               New Project
@@ -333,14 +330,13 @@ export default function ProjectsPage() {
           <div className="bg-card border border-border rounded-xl overflow-hidden">
             <table className="w-full table-fixed">
               <colgroup>
-                <col className="w-[28%]" />
-                <col className="w-[14%]" />
-                <col className="w-[14%]" />
-                <col className="w-[12%]" />
-                <col className="w-[12%]" />
-                <col className="w-[10%]" />
-                <col className="w-[8%]" />
-                <col className="w-[2%]" />
+                <col style={{ width: '14.28%' }} />
+                <col style={{ width: '14.28%' }} />
+                <col style={{ width: '14.28%' }} />
+                <col style={{ width: '14.28%' }} />
+                <col style={{ width: '14.28%' }} />
+                <col style={{ width: '14.28%' }} />
+                <col style={{ width: '14.28%' }} />
               </colgroup>
               <thead>
                 <tr className="border-b border-border bg-muted/30">
@@ -349,9 +345,8 @@ export default function ProjectsPage() {
                   <th className="table-header text-left">Phase</th>
                   <th className="table-header text-left">Status</th>
                   <th className="table-header text-left">Manager</th>
-                  <th className="table-header text-right">Budget</th>
+                  <th className="table-header text-left">Budget</th>
                   <th className="table-header text-left">Target</th>
-                  <th className="w-12" />
                 </tr>
               </thead>
               <tbody>
@@ -369,16 +364,8 @@ export default function ProjectsPage() {
                       <td className="table-cell text-muted-foreground overflow-hidden text-ellipsis whitespace-nowrap">{project.currentPhase}</td>
                       <td className="table-cell"><ProjectStatusBadge status={project.status} /></td>
                       <td className="table-cell text-muted-foreground overflow-hidden text-ellipsis whitespace-nowrap">{project.projectManager}</td>
-                      <td className="table-cell text-right text-muted-foreground">{formatBudget(project.estimatedBudget)}</td>
+                      <td className="table-cell text-muted-foreground overflow-hidden text-ellipsis whitespace-nowrap">{formatBudget(project.estimatedBudget)}</td>
                       <td className="table-cell text-muted-foreground overflow-hidden text-ellipsis whitespace-nowrap">{project.targetCompletion}</td>
-                      <td className="table-cell">
-                        <div className="flex items-center gap-1">
-                          <Link href={`/projects/${project.id}`} className="p-1 hover:bg-muted rounded text-muted-foreground">
-                            <span className="material-icons-outlined" style={{ fontSize: 15 }}>open_in_new</span>
-                          </Link>
-                          <PinButton pinned={project.pinned} onToggle={(e) => { e.preventDefault(); togglePin(project.id); }} />
-                        </div>
-                      </td>
                     </tr>
                   );
                 })}

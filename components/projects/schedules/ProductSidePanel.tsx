@@ -197,7 +197,7 @@ export function ProductSidePanel({
                   <div className="flex items-center gap-1.5 w-full">
                     <PanelInput value={form.productUrl} onChange={v => set('productUrl', v)} placeholder="https://" className="flex-1" />
                     {form.productUrl && (
-                      <a href={form.productUrl} target="_blank" rel="noopener noreferrer" className="text-sm text-foreground underline hover:text-muted-foreground transition-colors flex-shrink-0 whitespace-nowrap">
+                      <a href={form.productUrl} target="_blank" rel="noopener noreferrer" className="text-sm text-foreground hover:text-muted-foreground transition-colors flex-shrink-0 whitespace-nowrap">
                         Product Link
                       </a>
                     )}
@@ -311,21 +311,21 @@ export function ProductSidePanel({
         {/* Fixed footer */}
         <div className="flex items-center justify-between px-6 py-4 border-t border-border bg-card flex-shrink-0">
           <div className="flex items-center gap-2">
-            <button className="flex items-center gap-1.5 px-3 py-2 text-sm border border-border rounded-lg hover:bg-muted transition-colors text-muted-foreground">
-              <span className="material-icons-outlined" style={{ fontSize: 16 }}>preview</span>
-              Preview PDF
+            <button className="notion-button border border-border text-sm">
+              <span className="material-icons-outlined" style={{ fontSize: 15 }}>visibility</span>
+              Preview Spec Sheet
             </button>
-            <button className="flex items-center gap-1.5 px-3 py-2 text-sm border border-border rounded-lg hover:bg-muted transition-colors text-muted-foreground">
-              <span className="material-icons-outlined" style={{ fontSize: 16 }}>download</span>
-              Download PDF
+            <button className="notion-button border border-border text-sm">
+              <span className="material-icons-outlined" style={{ fontSize: 15 }}>picture_as_pdf</span>
+              Export Spec Sheet
             </button>
           </div>
-          <button
-            onClick={handleDone}
-            className="px-5 py-2 text-sm bg-foreground text-background rounded-lg hover:bg-foreground/90 transition-colors font-medium"
-          >
-            Done
-          </button>
+          <div className="flex items-center gap-2">
+            <button onClick={onClose} className="notion-button border border-border text-sm">Cancel</button>
+            <button onClick={handleDone} className="notion-button bg-foreground text-background hover:bg-foreground/90 text-sm">
+              Save
+            </button>
+          </div>
         </div>
       </div>
     </>

@@ -222,9 +222,9 @@ export function ScheduleProductCard({
             <Cell label="Length (mm)" field="length" value={product.length} numericOnly {...cellProps} />
             {/* Col 7 R1: Depth */}
             <Cell label="Depth (mm)" field="depth" value={product.depth} numericOnly {...cellProps} />
-            {/* Col 8 R1: Supplier / URL */}
+            {/* Col 8 R1: Product URL */}
             <div className="flex flex-col min-w-0">
-              <span className="text-[9px] font-medium text-muted-foreground/60 uppercase tracking-wider mb-0.5 leading-none">Supplier / Link</span>
+              <span className="text-[9px] font-medium text-muted-foreground/60 uppercase tracking-wider mb-0.5 leading-none">Product URL</span>
               {editField === 'supplier' ? (
                 <input
                   autoFocus
@@ -237,13 +237,20 @@ export function ScheduleProductCard({
                 />
               ) : (
                 <div className="flex items-center gap-1 cursor-text" onClick={() => startEdit('supplier', product.supplier)}>
-                  <span className="text-[11px] text-foreground truncate leading-tight">
-                    {product.supplier || product.productUrl || <span className="text-muted-foreground/40">—</span>}
-                  </span>
-                  {product.productUrl && (
-                    <a href={product.productUrl} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()}>
-                      <span className="material-icons-outlined text-muted-foreground/40 hover:text-muted-foreground flex-shrink-0" style={{ fontSize: 11 }}>open_in_new</span>
+                  {product.productUrl ? (
+                    <a
+                      href={product.productUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      onClick={(e) => e.stopPropagation()}
+                      className="text-[11px] text-foreground hover:text-muted-foreground transition-colors truncate leading-tight"
+                    >
+                      Product Link
                     </a>
+                  ) : (
+                    <span className="text-[11px] text-foreground truncate leading-tight">
+                      {product.supplier || <span className="text-muted-foreground/40">—</span>}
+                    </span>
                   )}
                 </div>
               )}

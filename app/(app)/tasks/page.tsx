@@ -5,6 +5,8 @@ import { SidePanel } from '@/components/ui/SidePanel';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { format, formatDistanceToNow } from 'date-fns';
+import { useProjects } from '@/lib/projects-context';
+import { SelectDropdown } from '@/components/projects/SelectDropdown';
 
 interface Task {
   id: string;
@@ -44,7 +46,7 @@ const STATUS_COLORS: Record<string, string> = {
   'Done': 'text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-900/20',
 };
 const KANBAN_COLUMNS = ['To Do', 'In Progress', 'Review', 'Done'] as const;
-const PROJECTS = ['All', 'Hampton Residence', 'Darling Point Apartment', 'Vaucluse House', 'Mosman Terrace', 'Rose Bay Villa', 'Woollahra Studio'];
+
 const STATUSES = ['All', 'To Do', 'In Progress', 'Review', 'Done'];
 const PRIORITIES = ['All', 'High', 'Medium', 'Low'];
 
@@ -84,6 +86,8 @@ function DatePickerInline({ value, onChange }: { value?: Date; onChange: (date: 
 }
 
 export default function TasksPage() {
+  const { projects } = useProjects();
+  const projectNames = ['All', ...projects.map(p => p.name)];
   const [tasks, setTasks] = useState<Task[]>(INITIAL_TASKS);
   const [view, setView] = useState<'table' | 'kanban'>('table');
   const [search, setSearch] = useState('');
@@ -116,7 +120,7 @@ export default function TasksPage() {
       id: `t-${Date.now()}`,
       title: newTask.title,
       project: newTask.project,
-      due: newTask.due || '—',
+      due: newTask.due || format(dueDate, 'd MMM'),
       dueDate,
       priority: newTask.priority,
       status: newTask.status,
@@ -178,7 +182,7 @@ export default function TasksPage() {
             <div><label className="block text-xs text-muted-foreground mb-1.5">Task Name</label>
               <input value={editingTask.title} onChange={e => setEditingTask(p => p && ({ ...p, title: e.target.value }))} className="modal-input" /></div>
             <div><label className="block text-xs text-muted-foreground mb-1.5">Project</label>
-              <input value={editingTask.project} onChange={e => setEditingTask(p => p && ({ ...p, project: e.target.value }))} className="modal-input" /></div>
+              <SelectDropdown value={editingTask.project} options={projects.map(p => p.name)} onChange={(v) => setEditingTask(p => p && ({ ...p, project: v }))} /></div>
             <div><label className="block text-xs text-muted-foreground mb-1.5">Priority</label>
               <div className="flex gap-2">{PRIORITIES.filter(p => p !== 'All').map(p => (
                 <button key={p} onClick={() => setEditingTask(prev => prev && ({ ...prev, priority: p as Task['priority'] }))}
@@ -207,7 +211,7 @@ export default function TasksPage() {
             <div><label className="block text-xs text-muted-foreground mb-1.5">Task Name *</label>
               <input value={newTask.title} onChange={e => setNewTask(p => ({ ...p, title: e.target.value }))} placeholder="e.g. Kitchen Layout Review" className="modal-input" /></div>
             <div><label className="block text-xs text-muted-foreground mb-1.5">Project</label>
-              <input value={newTask.project} onChange={e => setNewTask(p => ({ ...p, project: e.target.value }))} placeholder="e.g. Hampton Residence" className="modal-input" /></div>
+              <SelectDropdown value={newTask.project} options={projects.map(p => p.name)} onChange={(v) => setNewTask(p => ({ ...p, project: v }))} /></div>
             <div><label className="block text-xs text-muted-foreground mb-1.5">Priority</label>
               <div className="flex gap-2">{PRIORITIES.filter(p => p !== 'All').map(p => (
                 <button key={p} onClick={() => setNewTask(prev => ({ ...prev, priority: p as Task['priority'] }))}
@@ -219,7 +223,7 @@ export default function TasksPage() {
                   className={`py-2 text-xs rounded-lg border transition-colors ${newTask.status === s ? 'border-foreground bg-muted font-medium' : 'border-border text-muted-foreground hover:bg-muted/30'}`}>{s}</button>
               ))}</div></div>
             <div><label className="block text-xs text-muted-foreground mb-1.5">Due Date</label>
-              <DatePickerInline value={newTask.due ? new Date(newTask.due) : undefined} onChange={(date) => setNewTask(p => ({ ...p, due: format(date, 'yyyy-MM-dd') }))} /></div>
+              <DatePickerInline value={newTask.due ? new Date(newTask.due) : undefined} onChange={(date) => setNewTask(p => ({ ...p, due: format(date, 'd MMM') }))} /></div>
           </div>
         </SidePanel>
       )}
@@ -237,14 +241,14 @@ export default function TasksPage() {
           <div className="relative">
             <span className="material-icons-outlined absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none" style={{ fontSize: 16 }}>search</span>
             <input type="text" placeholder="Search tasks..." value={search} onChange={e => setSearch(e.target.value)}
-              className="pl-8 pr-3 py-1.5 text-sm border border-border rounded-lg bg-background w-48 placeholder:text-muted-foreground outline-none focus:border-foreground/30 transition-colors" />
+              className="pl-8 pr-3 h-8 text-sm border border-border rounded-lg bg-background w-48 placeholder:text-muted-foreground outline-none focus:border-foreground/30 transition-colors" />
             {search && <button onClick={() => setSearch('')} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"><span className="material-icons-outlined" style={{ fontSize: 14 }}>close</span></button>}
           </div>
 
           {/* Filter */}
           <div className="relative">
             <button onClick={() => { setShowFilterMenu(!showFilterMenu); setShowSortMenu(false); }} title="Filter"
-              className={`relative flex items-center justify-center w-9 h-9 border rounded-lg transition-colors ${hasFilters ? 'border-foreground/30 bg-muted text-foreground' : 'border-border text-muted-foreground hover:text-foreground hover:bg-muted/50'}`}>
+              className={`relative flex items-center justify-center w-8 h-8 border rounded-lg transition-colors ${hasFilters ? 'border-foreground/30 bg-muted text-foreground' : 'border-border text-muted-foreground hover:text-foreground hover:bg-muted/50'}`}>
               <span className="material-icons-outlined" style={{ fontSize: 18 }}>filter_list</span>
               {hasFilters && <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 rounded-full bg-foreground" />}
             </button>
@@ -253,7 +257,7 @@ export default function TasksPage() {
                 <div className="fixed inset-0 z-20" onClick={() => setShowFilterMenu(false)} />
                 <div className="absolute right-0 mt-1 w-52 bg-popover border border-border rounded-xl shadow-lg z-30 py-2 overflow-hidden">
                   <p className="px-3 py-1 text-xs font-medium text-muted-foreground uppercase tracking-wide">Project</p>
-                  {PROJECTS.map(opt => <button key={opt} onClick={() => setFilterProject(opt)} className={`filter-item ${filterProject === opt ? 'filter-item-active' : 'filter-item-inactive'}`}>{opt}{filterProject === opt && <span className="material-icons-outlined" style={{ fontSize: 13 }}>check</span>}</button>)}
+                  {projectNames.map(opt => <button key={opt} onClick={() => setFilterProject(opt)} className={`filter-item ${filterProject === opt ? 'filter-item-active' : 'filter-item-inactive'}`}>{opt}{filterProject === opt && <span className="material-icons-outlined" style={{ fontSize: 13 }}>check</span>}</button>)}
                   <div className="border-t border-border/40 my-1" />
                   <p className="px-3 py-1 text-xs font-medium text-muted-foreground uppercase tracking-wide">Status</p>
                   {STATUSES.map(opt => <button key={opt} onClick={() => setFilterStatus(opt)} className={`filter-item ${filterStatus === opt ? 'filter-item-active' : 'filter-item-inactive'}`}>{opt}{filterStatus === opt && <span className="material-icons-outlined" style={{ fontSize: 13 }}>check</span>}</button>)}
@@ -266,7 +270,7 @@ export default function TasksPage() {
           {/* Sort */}
           <div className="relative">
             <button onClick={() => { setShowSortMenu(!showSortMenu); setShowFilterMenu(false); }} title="Sort"
-              className="flex items-center justify-center w-9 h-9 border border-border rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors">
+              className="flex items-center justify-center w-8 h-8 border border-border rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors">
               <span className="material-symbols-outlined" style={{ fontSize: 18 }}>list_arrow</span>
             </button>
             {showSortMenu && (
@@ -291,7 +295,7 @@ export default function TasksPage() {
             <button onClick={() => setView('table')} className={`w-8 h-8 flex items-center justify-center transition-colors ${view === 'table' ? 'bg-muted text-foreground' : 'text-muted-foreground hover:bg-muted/50'}`} title="Table">
               <span className="material-icons-outlined" style={{ fontSize: 16 }}>table_rows</span>
             </button>
-            <button onClick={() => setView('kanban')} className={`px-2.5 py-1.5 flex items-center border-l border-border transition-colors ${view === 'kanban' ? 'bg-muted text-foreground' : 'text-muted-foreground hover:bg-muted/50'}`} title="Kanban">
+            <button onClick={() => setView('kanban')} className={`w-8 h-8 flex items-center justify-center border-l border-border transition-colors ${view === 'kanban' ? 'bg-muted text-foreground' : 'text-muted-foreground hover:bg-muted/50'}`} title="Kanban">
               <span className="material-icons-outlined" style={{ fontSize: 16 }}>view_kanban</span>
             </button>
           </div>
@@ -321,11 +325,11 @@ export default function TasksPage() {
                   <table className="w-full table-fixed">
                     <colgroup>
                       <col className="w-10" />
-                      <col />
-                      <col className="w-40" />
-                      <col className="w-24" />
-                      <col className="w-28" />
-                      <col className="w-20" />
+                      <col className="w-1/5" />
+                      <col className="w-1/5" />
+                      <col className="w-1/5" />
+                      <col className="w-1/5" />
+                      <col className="w-1/5" />
                       <col className="w-16" />
                     </colgroup>
                     <thead>
@@ -349,13 +353,13 @@ export default function TasksPage() {
                             <input type="checkbox" checked={task.completed} onChange={() => toggleComplete(task.id)}
                               className="w-4 h-4 rounded border-border cursor-pointer accent-foreground" />
                           </td>
-                          <td className="table-cell">
+                          <td className="table-cell overflow-hidden text-ellipsis whitespace-nowrap">
                             <span className={`font-medium ${task.completed ? 'line-through text-muted-foreground' : ''}`}>{task.title}</span>
                           </td>
                           <td className="table-cell text-muted-foreground text-sm overflow-hidden text-ellipsis whitespace-nowrap">{task.project}</td>
                           <td className="table-cell"><span className={`text-xs px-2 py-0.5 rounded-full font-medium ${PRIORITY_COLORS[task.priority]}`}>{task.priority}</span></td>
                           <td className="table-cell"><span className={`text-xs px-2 py-0.5 rounded-full font-medium ${STATUS_COLORS[task.status]}`}>{task.status}</span></td>
-                          <td className="table-cell text-sm text-muted-foreground">{task.due}</td>
+                          <td className="table-cell text-sm text-muted-foreground overflow-hidden text-ellipsis whitespace-nowrap">{task.due}</td>
                           <td className="px-3 py-2 text-right">
                             <button onClick={() => setEditingTask(task)}
                               className={`text-xs px-2 py-1 border border-border rounded-lg hover:bg-muted transition-all text-muted-foreground hover:text-foreground ${hoveredId === task.id ? 'opacity-100' : 'opacity-0'}`}>

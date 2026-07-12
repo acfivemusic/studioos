@@ -193,14 +193,7 @@ export function ProductDetailsModal({ product, onClose, onSave }: ProductDetails
                     <ModalInput value={form.manufacturer} onChange={(v) => set('manufacturer', v)} placeholder="Manufacturer" />
                   </FormRow>
                   <FormRow label="Product URL" className="col-span-2">
-                    <div className="flex items-center gap-2">
-                      <ModalInput value={form.productUrl} onChange={(v) => set('productUrl', v)} placeholder="https://" />
-                      {form.productUrl && (
-                        <a href={form.productUrl} target="_blank" rel="noopener noreferrer" className="text-sm text-foreground underline hover:text-muted-foreground transition-colors flex-shrink-0">
-                          Product Link
-                        </a>
-                      )}
-                    </div>
+                    <ModalInput value={form.productUrl} onChange={(v) => set('productUrl', v)} placeholder="https://" />
                   </FormRow>
                 </div>
               </div>

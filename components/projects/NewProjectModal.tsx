@@ -5,7 +5,6 @@ import { PROJECT_PHASES, PROJECT_STATUSES, PROJECT_TYPES, ProjectStatus, Project
 import { ClientSelect } from './ClientSelect';
 import { SelectDropdown } from './SelectDropdown';
 import { DesignerSelect } from '@/components/crm/DesignerSelect';
-import { NewClientModal } from '@/components/crm/NewClientModal';
 import { DatePicker } from '@/components/ui/DatePicker';
 import { SidePanel } from '@/components/ui/SidePanel';
 
@@ -32,7 +31,6 @@ export interface NewProjectData {
 }
 
 export function NewProjectModal({ onClose, onSave }: NewProjectModalProps) {
-  const [showClientModal, setShowClientModal] = useState(false);
   const [form, setForm] = useState({
     name: '',
     clientId: '',
@@ -61,7 +59,6 @@ export function NewProjectModal({ onClose, onSave }: NewProjectModalProps) {
 
   return (
     <>
-      {showClientModal && <NewClientModal onClose={() => setShowClientModal(false)} />}
       <SidePanel
         title="New Project"
         onClose={onClose}
@@ -89,7 +86,6 @@ export function NewProjectModal({ onClose, onSave }: NewProjectModalProps) {
               <ClientSelect
                 value={form.clientId}
                 onChange={(id) => set('clientId', id)}
-                onAddNew={() => setShowClientModal(true)}
               />
             </Field>
           </div>

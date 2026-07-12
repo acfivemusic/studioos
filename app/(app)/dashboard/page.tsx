@@ -136,15 +136,15 @@ export default function DashboardPage() {
             <p className="text-muted-foreground text-sm mt-0.5">Welcome back, {settings.firstName}.</p>
           </div>
           <div className="flex items-center gap-2">
-            <button onClick={() => setShowNewProject(true)} className="btn-primary">
+            <button onClick={() => setShowNewProject(true)} className="btn-primary h-8">
               <span className="material-icons-outlined" style={{ fontSize: 16 }}>add</span>
               New Project
             </button>
-            <button onClick={() => setShowNewLead(true)} className="notion-button border border-border/60 bg-card/80">
+            <button onClick={() => setShowNewLead(true)} className="notion-button border border-border/60 bg-card/80 h-8">
               <span className="material-icons-outlined" style={{ fontSize: 15 }}>person_add</span>
               Add Lead
             </button>
-            <button onClick={() => setShowNewInvoice(true)} className="notion-button border border-border/60 bg-card/80">
+            <button onClick={() => setShowNewInvoice(true)} className="notion-button border border-border/60 bg-card/80 h-8">
               <span className="material-icons-outlined" style={{ fontSize: 15 }}>receipt_long</span>
               New Invoice
             </button>
@@ -246,7 +246,7 @@ export default function DashboardPage() {
                   <th className="table-header text-left">Client</th>
                   <th className="table-header text-left">Phase</th>
                   <th className="table-header text-left">Status</th>
-                  <th className="table-header text-right">Progress</th>
+                  <th className="table-header text-left">Progress</th>
                 </tr>
               </thead>
               <tbody>
@@ -266,12 +266,12 @@ export default function DashboardPage() {
                       <td className="table-cell text-sm text-muted-foreground overflow-hidden text-ellipsis whitespace-nowrap">{project.client?.primaryContact || '—'}</td>
                       <td className="table-cell text-sm text-muted-foreground overflow-hidden text-ellipsis whitespace-nowrap">{project.currentPhase}</td>
                       <td className="table-cell"><ProjectStatusBadge status={project.status} /></td>
-                      <td className="table-cell text-right">
-                        <div className="flex items-center justify-end gap-2">
-                          <div className="flex-1 h-1.5 bg-muted rounded-full overflow-hidden max-w-[120px]">
+                      <td className="table-cell">
+                        <div className="flex items-center gap-2">
+                          <div className="flex-1 h-1.5 bg-muted rounded-full overflow-hidden">
                             <div className="h-full rounded-full transition-all" style={{ width: `${project.progress}%`, background: 'rgba(51,51,51,0.35)' }} />
                           </div>
-                          <span className="text-xs text-muted-foreground w-8 text-right flex-shrink-0">{project.progress}%</span>
+                          <span className="text-xs text-muted-foreground w-8 flex-shrink-0">{project.progress}%</span>
                         </div>
                       </td>
                     </tr>
