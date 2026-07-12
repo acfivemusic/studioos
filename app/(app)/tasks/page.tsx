@@ -2,6 +2,9 @@
 
 import { useState, useMemo } from 'react';
 import { SidePanel } from '@/components/ui/SidePanel';
+import { Calendar } from '@/components/ui/calendar';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { format, formatDistanceToNow } from 'date-fns';
 
 interface Task {
   id: string;
@@ -63,6 +66,23 @@ const DUE_GROUP_COLORS: Record<string, string> = {
   Completed: 'text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-900/20',
 };
 
+function DatePickerInline({ value, onChange }: { value?: Date; onChange: (date: Date) => void }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger asChild>
+        <button className="modal-input flex items-center justify-between text-left" type="button">
+          <span>{value ? format(value, 'd MMM yyyy') : 'Select date'}</span>
+          <span className="material-icons-outlined text-muted-foreground" style={{ fontSize: 16 }}>calendar_today</span>
+        </button>
+      </PopoverTrigger>
+      <PopoverContent className="w-auto p-0" align="start">
+        <Calendar mode="single" selected={value} onSelect={(d) => { if (d) { onChange(d); setOpen(false); } }} initialFocus />
+      </PopoverContent>
+    </Popover>
+  );
+}
+
 export default function TasksPage() {
   const [tasks, setTasks] = useState<Task[]>(INITIAL_TASKS);
   const [view, setView] = useState<'table' | 'kanban'>('table');
@@ -115,13 +135,19 @@ export default function TasksPage() {
       if (filterStatus !== 'All' && t.status !== filterStatus) return false;
       return true;
     }).sort((a, b) => {
-      let va = 0, vb = 0;
+      let va: number | string = 0, vb: number | string = 0;
       if (sortBy === 'due') { va = a.dueDate.getTime(); vb = b.dueDate.getTime(); }
       else if (sortBy === 'priority') {
-        const order = { High: 0, Medium: 1, Low: 2 };
+        const order: Record<string, number> = { High: 0, Medium: 1, Low: 2 };
         va = order[a.priority]; vb = order[b.priority];
+      } else if (sortBy === 'status') {
+        const order: Record<string, number> = { 'To Do': 0, 'In Progress': 1, 'Review': 2, 'Done': 3 };
+        va = order[a.status]; vb = order[b.status];
+      } else if (sortBy === 'created') {
+        va = a.id; vb = b.id;
       }
-      return sortOrder === 'asc' ? va - vb : vb - va;
+      const cmp = va < vb ? -1 : va > vb ? 1 : 0;
+      return sortOrder === 'asc' ? cmp : -cmp;
     });
   }, [tasks, search, filterProject, filterStatus, sortBy, sortOrder]);
 
@@ -164,7 +190,7 @@ export default function TasksPage() {
                   className={`py-2 text-xs rounded-lg border transition-colors ${editingTask.status === s ? 'border-foreground bg-muted font-medium' : 'border-border text-muted-foreground hover:bg-muted/30'}`}>{s}</button>
               ))}</div></div>
             <div><label className="block text-xs text-muted-foreground mb-1.5">Due Date</label>
-              <input value={editingTask.due} onChange={e => setEditingTask(p => p && ({ ...p, due: e.target.value }))} className="modal-input" /></div>
+              <DatePickerInline value={editingTask.dueDate} onChange={(date) => setEditingTask(p => p && ({ ...p, dueDate: date, due: format(date, 'd MMM') }))} /></div>
           </div>
         </SidePanel>
       )}
@@ -193,7 +219,7 @@ export default function TasksPage() {
                   className={`py-2 text-xs rounded-lg border transition-colors ${newTask.status === s ? 'border-foreground bg-muted font-medium' : 'border-border text-muted-foreground hover:bg-muted/30'}`}>{s}</button>
               ))}</div></div>
             <div><label className="block text-xs text-muted-foreground mb-1.5">Due Date</label>
-              <input type="date" value={newTask.due} onChange={e => setNewTask(p => ({ ...p, due: e.target.value }))} className="modal-input" /></div>
+              <DatePickerInline value={newTask.due ? new Date(newTask.due) : undefined} onChange={(date) => setNewTask(p => ({ ...p, due: format(date, 'yyyy-MM-dd') }))} /></div>
           </div>
         </SidePanel>
       )}
@@ -248,7 +274,7 @@ export default function TasksPage() {
                 <div className="fixed inset-0 z-20" onClick={() => setShowSortMenu(false)} />
                 <div className="absolute right-0 mt-1 w-48 bg-popover border border-border rounded-xl shadow-lg z-30 py-2 overflow-hidden">
                   <p className="px-3 py-1 text-xs font-medium text-muted-foreground uppercase tracking-wide">Sort By</p>
-                  {[{l:'Priority',v:'priority'},{l:'Due Date',v:'due'},{l:'Created',v:'created'}].map(opt => (
+                  {[{l:'Priority',v:'priority'},{l:'Status',v:'status'},{l:'Due Date',v:'due'},{l:'Created',v:'created'}].map(opt => (
                     <button key={opt.v} onClick={() => { setSortBy(opt.v); setShowSortMenu(false); }}
                       className={`filter-item ${sortBy === opt.v ? 'filter-item-active' : 'filter-item-inactive'}`}>{opt.l}{sortBy === opt.v && <span className="material-icons-outlined" style={{ fontSize: 13 }}>check</span>}</button>
                   ))}
@@ -262,7 +288,7 @@ export default function TasksPage() {
 
           {/* View toggle */}
           <div className="flex border border-border rounded-lg overflow-hidden">
-            <button onClick={() => setView('table')} className={`px-2.5 py-1.5 flex items-center transition-colors ${view === 'table' ? 'bg-muted text-foreground' : 'text-muted-foreground hover:bg-muted/50'}`} title="Table">
+            <button onClick={() => setView('table')} className={`w-8 h-8 flex items-center justify-center transition-colors ${view === 'table' ? 'bg-muted text-foreground' : 'text-muted-foreground hover:bg-muted/50'}`} title="Table">
               <span className="material-icons-outlined" style={{ fontSize: 16 }}>table_rows</span>
             </button>
             <button onClick={() => setView('kanban')} className={`px-2.5 py-1.5 flex items-center border-l border-border transition-colors ${view === 'kanban' ? 'bg-muted text-foreground' : 'text-muted-foreground hover:bg-muted/50'}`} title="Kanban">
@@ -292,16 +318,25 @@ export default function TasksPage() {
                   <span className="text-xs text-muted-foreground">{groupTasks.length}</span>
                 </div>
                 <div className="card-base overflow-hidden">
-                  <table className="w-full">
+                  <table className="w-full table-fixed">
+                    <colgroup>
+                      <col className="w-10" />
+                      <col />
+                      <col className="w-40" />
+                      <col className="w-24" />
+                      <col className="w-28" />
+                      <col className="w-20" />
+                      <col className="w-16" />
+                    </colgroup>
                     <thead>
                       <tr className="border-b border-border bg-muted/15">
-                        <th className="w-10 px-3 py-2.5" />
+                        <th className="px-3 py-2.5" />
                         <th className="table-header text-left">Task</th>
                         <th className="table-header text-left">Project</th>
                         <th className="table-header text-left">Priority</th>
                         <th className="table-header text-left">Status</th>
                         <th className="table-header text-left">Due</th>
-                        <th className="w-20" />
+                        <th className="w-16" />
                       </tr>
                     </thead>
                     <tbody>
@@ -317,7 +352,7 @@ export default function TasksPage() {
                           <td className="table-cell">
                             <span className={`font-medium ${task.completed ? 'line-through text-muted-foreground' : ''}`}>{task.title}</span>
                           </td>
-                          <td className="table-cell text-muted-foreground text-sm">{task.project}</td>
+                          <td className="table-cell text-muted-foreground text-sm overflow-hidden text-ellipsis whitespace-nowrap">{task.project}</td>
                           <td className="table-cell"><span className={`text-xs px-2 py-0.5 rounded-full font-medium ${PRIORITY_COLORS[task.priority]}`}>{task.priority}</span></td>
                           <td className="table-cell"><span className={`text-xs px-2 py-0.5 rounded-full font-medium ${STATUS_COLORS[task.status]}`}>{task.status}</span></td>
                           <td className="table-cell text-sm text-muted-foreground">{task.due}</td>

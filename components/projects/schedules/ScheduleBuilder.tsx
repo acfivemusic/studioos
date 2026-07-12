@@ -241,6 +241,37 @@ export function ScheduleBuilder({ schedule, onChange }: ScheduleBuilderProps) {
     setDragProductId(null); setDragSectionId(null); setDragOverProductId(null);
   }, [dragProductId, updateSchedule]);
 
+  // Drop onto a section (end of section or empty section) — enables cross-section moves
+  const handleDropOnSection = useCallback((e: React.DragEvent, targetSectionId: string) => {
+    e.preventDefault();
+    if (!dragProductId) {
+      setDragProductId(null); setDragSectionId(null); setDragOverProductId(null);
+      return;
+    }
+    if (dragSectionId === targetSectionId) {
+      setDragProductId(null); setDragSectionId(null); setDragOverProductId(null);
+      return;
+    }
+    updateSchedule(draft => {
+      let movedProduct: ScheduleProduct | null = null;
+      draft.sections = draft.sections.map(sec => {
+        const idx = sec.products.findIndex(p => p.id === dragProductId);
+        if (idx === -1) return sec;
+        movedProduct = { ...sec.products[idx] };
+        return { ...sec, products: sec.products.filter(p => p.id !== dragProductId) };
+      });
+      if (!movedProduct) return;
+      const product = movedProduct;
+      draft.sections = draft.sections.map(sec => {
+        if (sec.id !== targetSectionId) return sec;
+        return { ...sec, products: [...sec.products, product].map((p, i) => ({ ...p, order: i })) };
+      });
+    });
+    setDragProductId(null); setDragSectionId(null); setDragOverProductId(null);
+  }, [dragProductId, dragSectionId, updateSchedule]);
+
+  const [dragOverSectionId, setDragOverSectionId] = useState<string | null>(null);
+
   const handleDragEnd = useCallback(() => {
     setDragProductId(null); setDragSectionId(null); setDragOverProductId(null);
   }, []);
@@ -273,6 +304,24 @@ export function ScheduleBuilder({ schedule, onChange }: ScheduleBuilderProps) {
       {/* ── Toolbar ── */}
       <div className="flex items-center gap-2 px-4 py-3 border-b border-border/50">
 
+        {/* View Mode toggle — Summary / Financial (left aligned) */}
+        <div className="flex border border-border rounded-lg overflow-hidden">
+          <button
+            onClick={() => setViewMode('summary')}
+            className={`h-9 px-3 text-sm flex items-center transition-colors ${viewMode === 'summary' ? 'view-toggle-active' : 'text-muted-foreground hover:bg-muted/50'}`}
+          >
+            Summary
+          </button>
+          <button
+            onClick={() => setViewMode('financial')}
+            className={`h-9 px-3 text-sm flex items-center border-l border-border transition-colors ${viewMode === 'financial' ? 'view-toggle-active' : 'text-muted-foreground hover:bg-muted/50'}`}
+          >
+            Financial
+          </button>
+        </div>
+
+        <div className="flex-1" />
+
         {/* Search */}
         <div className="relative flex-shrink-0">
           <span className="material-icons-outlined absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none" style={{ fontSize: 16 }}>search</span>
@@ -290,6 +339,43 @@ export function ScheduleBuilder({ schedule, onChange }: ScheduleBuilderProps) {
             >
               <span className="material-icons-outlined" style={{ fontSize: 14 }}>close</span>
             </button>
+          )}
+        </div>
+
+        {/* View Section dropdown — icon only */}
+        <div className="relative">
+          <button
+            onClick={() => setShowSectionMenu(!showSectionMenu)}
+            title="View Section"
+            className={`relative toolbar-icon-btn ${sectionFilter !== 'all' ? 'toolbar-icon-btn-active' : ''}`}
+          >
+            <span className="material-icons-outlined" style={{ fontSize: 18 }}>filter_list</span>
+            {sectionFilter !== 'all' && <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 rounded-full bg-foreground" />}
+          </button>
+          {showSectionMenu && (
+            <>
+              <div className="fixed inset-0 z-20" onClick={() => setShowSectionMenu(false)} />
+              <div className="absolute right-0 mt-1 w-52 bg-popover border border-border rounded-xl shadow-lg z-30 py-2 overflow-hidden">
+                <p className="px-3 py-1 text-xs font-medium text-muted-foreground uppercase tracking-wide mb-1">View Section</p>
+                <button
+                  onClick={() => { setSectionFilter('all'); setShowSectionMenu(false); }}
+                  className={`filter-item ${sectionFilter === 'all' ? 'filter-item-active' : 'filter-item-inactive'}`}
+                >
+                  All Sections
+                  {sectionFilter === 'all' && <span className="material-icons-outlined" style={{ fontSize: 13 }}>check</span>}
+                </button>
+                {schedule.sections.map(sec => (
+                  <button
+                    key={sec.id}
+                    onClick={() => { setSectionFilter(sec.id); setShowSectionMenu(false); }}
+                    className={`filter-item ${sectionFilter === sec.id ? 'filter-item-active' : 'filter-item-inactive'}`}
+                  >
+                    {sec.name}
+                    {sectionFilter === sec.id && <span className="material-icons-outlined" style={{ fontSize: 13 }}>check</span>}
+                  </button>
+                ))}
+              </div>
+            </>
           )}
         </div>
 
@@ -337,61 +423,6 @@ export function ScheduleBuilder({ schedule, onChange }: ScheduleBuilderProps) {
           )}
         </div>
 
-        <div className="flex-1" />
-
-        {/* View Mode toggle — Summary / Financial */}
-        <div className="flex border border-border rounded-lg overflow-hidden">
-          <button
-            onClick={() => setViewMode('summary')}
-            className={`h-9 px-3 text-sm flex items-center transition-colors ${viewMode === 'summary' ? 'view-toggle-active' : 'text-muted-foreground hover:bg-muted/50'}`}
-          >
-            Summary
-          </button>
-          <button
-            onClick={() => setViewMode('financial')}
-            className={`h-9 px-3 text-sm flex items-center border-l border-border transition-colors ${viewMode === 'financial' ? 'view-toggle-active' : 'text-muted-foreground hover:bg-muted/50'}`}
-          >
-            Financial
-          </button>
-        </div>
-
-        {/* View Section dropdown — matches dashboard filter styling */}
-        <div className="relative">
-          <button
-            onClick={() => setShowSectionMenu(!showSectionMenu)}
-            title="View Section"
-            className={`relative toolbar-icon-btn ${sectionFilter !== 'all' ? 'toolbar-icon-btn-active' : ''}`}
-          >
-            <span className="material-icons-outlined" style={{ fontSize: 18 }}>filter_list</span>
-            {sectionFilter !== 'all' && <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 rounded-full bg-foreground" />}
-          </button>
-          {showSectionMenu && (
-            <>
-              <div className="fixed inset-0 z-20" onClick={() => setShowSectionMenu(false)} />
-              <div className="absolute right-0 mt-1 w-52 bg-popover border border-border rounded-xl shadow-lg z-30 py-2 overflow-hidden">
-                <p className="px-3 py-1 text-xs font-medium text-muted-foreground uppercase tracking-wide mb-1">View Section</p>
-                <button
-                  onClick={() => { setSectionFilter('all'); setShowSectionMenu(false); }}
-                  className={`filter-item ${sectionFilter === 'all' ? 'filter-item-active' : 'filter-item-inactive'}`}
-                >
-                  All Sections
-                  {sectionFilter === 'all' && <span className="material-icons-outlined" style={{ fontSize: 13 }}>check</span>}
-                </button>
-                {schedule.sections.map(sec => (
-                  <button
-                    key={sec.id}
-                    onClick={() => { setSectionFilter(sec.id); setShowSectionMenu(false); }}
-                    className={`filter-item ${sectionFilter === sec.id ? 'filter-item-active' : 'filter-item-inactive'}`}
-                  >
-                    {sec.name}
-                    {sectionFilter === sec.id && <span className="material-icons-outlined" style={{ fontSize: 13 }}>check</span>}
-                  </button>
-                ))}
-              </div>
-            </>
-          )}
-        </div>
-
         {/* Bulk actions */}
         {selectedProducts.length > 0 && (
           <div className="relative">
@@ -431,14 +462,6 @@ export function ScheduleBuilder({ schedule, onChange }: ScheduleBuilderProps) {
           <span className="material-icons-outlined" style={{ fontSize: 18 }}>picture_as_pdf</span>
         </button>
 
-        {/* Preview PDF icon-only */}
-        <button
-          title="Preview PDF"
-          className="toolbar-icon-btn"
-        >
-          <span className="material-icons-outlined" style={{ fontSize: 18 }}>visibility</span>
-        </button>
-
         {/* New Section */}
         <button
           onClick={handleAddSection}
@@ -451,36 +474,18 @@ export function ScheduleBuilder({ schedule, onChange }: ScheduleBuilderProps) {
 
       {/* ── Schedule Content — sits directly on page ── */}
       <div className="pb-8">
-        {/* Financial Summary card — only in financial view */}
+        {/* Financial Summary slim card — only in financial view */}
         {viewMode === 'financial' && (
-          <div className="mb-6 bg-card border border-border rounded-xl p-5 card-base">
-            <h3 className="font-medium text-sm mb-4">Financial Summary</h3>
-            <div className="grid grid-cols-3 gap-4">
+          <div className="mb-4 px-4 py-3 card-base">
+            <h3 className="font-medium text-sm mb-3">Financial Summary</h3>
+            <div className="flex items-start gap-8">
               <div>
-                <p className="text-xs text-muted-foreground mb-1">Products</p>
-                <p className="text-xl font-semibold">{allFilteredProducts.length}</p>
+                <p className="text-lg font-semibold leading-tight">{allFilteredProducts.length}</p>
+                <p className="text-xs text-muted-foreground mt-0.5">Total Products</p>
               </div>
               <div>
-                <p className="text-xs text-muted-foreground mb-1">Approved</p>
-                <p className="text-xl font-semibold">{allFilteredProducts.filter(p => p.status === 'Approved').length}</p>
-              </div>
-              <div>
-                <p className="text-xs text-muted-foreground mb-1">Total Value</p>
-                <p className="text-xl font-semibold">A${allFilteredProducts.reduce((s, p) => s + parseFloat(p.unitCost || '0') * parseFloat(p.quantity || '1'), 0).toLocaleString('en-AU', { minimumFractionDigits: 2 })}</p>
-              </div>
-            </div>
-            <div className="grid grid-cols-3 gap-4 mt-4 pt-4 border-t border-border/40">
-              <div>
-                <p className="text-xs text-muted-foreground mb-1">Total Products</p>
-                <p className="text-sm font-medium">{allFilteredProducts.length}</p>
-              </div>
-              <div>
-                <p className="text-xs text-muted-foreground mb-1">Total Approved</p>
-                <p className="text-sm font-medium">{allFilteredProducts.filter(p => p.status === 'Approved').length}</p>
-              </div>
-              <div>
-                <p className="text-xs text-muted-foreground mb-1">Total Amount</p>
-                <p className="text-sm font-medium">A${allFilteredProducts.reduce((s, p) => s + parseFloat(p.unitCost || '0') * parseFloat(p.quantity || '1'), 0).toLocaleString('en-AU', { minimumFractionDigits: 2 })}</p>
+                <p className="text-lg font-semibold leading-tight">A${allFilteredProducts.reduce((s, p) => s + parseFloat(p.unitCost || '0') * parseFloat(p.quantity || '1'), 0).toLocaleString('en-AU', { minimumFractionDigits: 2 })}</p>
+                <p className="text-xs text-muted-foreground mt-0.5">Total Value</p>
               </div>
             </div>
           </div>
@@ -512,6 +517,9 @@ export function ScheduleBuilder({ schedule, onChange }: ScheduleBuilderProps) {
             onDrop={handleDrop}
             onDragEnd={handleDragEnd}
             dragOverProductId={dragOverProductId}
+            onDropOnSection={handleDropOnSection}
+            dragOverSectionId={dragOverSectionId}
+            setDragOverSectionId={setDragOverSectionId}
           />
         ))}
 

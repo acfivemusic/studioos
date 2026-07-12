@@ -135,13 +135,13 @@ export default function ProjectsPage() {
           <div className="flex border border-border rounded-lg overflow-hidden">
             <button
               onClick={() => setViewMode('all')}
-              className={`h-9 px-3 text-sm flex items-center transition-colors ${viewMode === 'all' ? 'view-toggle-active' : 'text-muted-foreground hover:bg-muted/50'}`}
+              className={`h-8 px-3 text-sm flex items-center transition-colors ${viewMode === 'all' ? 'view-toggle-active' : 'text-muted-foreground hover:bg-muted/50'}`}
             >
               All
             </button>
             <button
               onClick={() => setViewMode('archived')}
-              className={`h-9 px-3 text-sm flex items-center border-l border-border transition-colors ${viewMode === 'archived' ? 'view-toggle-active' : 'text-muted-foreground hover:bg-muted/50'}`}
+              className={`h-8 px-3 text-sm flex items-center border-l border-border transition-colors ${viewMode === 'archived' ? 'view-toggle-active' : 'text-muted-foreground hover:bg-muted/50'}`}
             >
               Archived
             </button>
@@ -281,14 +281,14 @@ export default function ProjectsPage() {
             <div className="flex border border-border rounded-lg overflow-hidden">
               <button
                 onClick={() => setView('card')}
-                className={`w-9 h-9 flex items-center justify-center transition-colors ${view === 'card' ? 'view-toggle-active' : 'text-muted-foreground hover:bg-muted/50'}`}
+                className={`w-8 h-8 flex items-center justify-center transition-colors ${view === 'card' ? 'view-toggle-active' : 'text-muted-foreground hover:bg-muted/50'}`}
                 title="Card view"
               >
                 <span className="material-icons-outlined" style={{ fontSize: 18 }}>grid_view</span>
               </button>
               <button
                 onClick={() => setView('table')}
-                className={`w-9 h-9 flex items-center justify-center border-l border-border transition-colors ${view === 'table' ? 'view-toggle-active' : 'text-muted-foreground hover:bg-muted/50'}`}
+                className={`w-8 h-8 flex items-center justify-center border-l border-border transition-colors ${view === 'table' ? 'view-toggle-active' : 'text-muted-foreground hover:bg-muted/50'}`}
                 title="Table view"
               >
                 <span className="material-icons-outlined" style={{ fontSize: 18 }}>table_rows</span>

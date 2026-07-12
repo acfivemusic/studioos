@@ -143,10 +143,10 @@ export default function LeadsPage() {
 
           {/* View toggle */}
           <div className="flex border border-border rounded-lg overflow-hidden">
-            <button onClick={() => setView('card')} className={`w-9 h-9 flex items-center justify-center transition-colors ${view === 'card' ? 'view-toggle-active' : 'text-muted-foreground hover:bg-muted/50'}`} title="Cards">
+            <button onClick={() => setView('card')} className={`w-8 h-8 flex items-center justify-center transition-colors ${view === 'card' ? 'view-toggle-active' : 'text-muted-foreground hover:bg-muted/50'}`} title="Cards">
               <span className="material-icons-outlined" style={{ fontSize: 18 }}>grid_view</span>
             </button>
-            <button onClick={() => setView('table')} className={`w-9 h-9 flex items-center justify-center border-l border-border transition-colors ${view === 'table' ? 'view-toggle-active' : 'text-muted-foreground hover:bg-muted/50'}`} title="Table">
+            <button onClick={() => setView('table')} className={`w-8 h-8 flex items-center justify-center border-l border-border transition-colors ${view === 'table' ? 'view-toggle-active' : 'text-muted-foreground hover:bg-muted/50'}`} title="Table">
               <span className="material-icons-outlined" style={{ fontSize: 18 }}>table_rows</span>
             </button>
           </div>

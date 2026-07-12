@@ -3,8 +3,7 @@
 import { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
 
-const USER_NAME = 'Ellie Sanders';
-const USER_ROLE = 'Administrator';
+import { useSettings } from '@/lib/settings-context';
 
 function getInitials(name: string): string {
   return name
@@ -16,10 +15,12 @@ function getInitials(name: string): string {
 }
 
 export function UserMenu() {
+  const { settings } = useSettings();
+  const fullName = `${settings.firstName} ${settings.lastName}`.trim();
   const [open, setOpen] = useState(false);
   const [showLogoutDialog, setShowLogoutDialog] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
-  const initials = getInitials(USER_NAME);
+  const initials = getInitials(fullName);
 
   useEffect(() => {
     const handler = (e: MouseEvent) => {
@@ -47,7 +48,7 @@ export function UserMenu() {
         <button
           onClick={() => setOpen(!open)}
           className="w-8 h-8 rounded-full bg-muted hover:bg-muted/80 border border-border flex items-center justify-center transition-colors flex-shrink-0"
-          title={USER_NAME}
+          title={fullName}
         >
           <span className="text-xs font-semibold text-foreground select-none">{initials}</span>
         </button>
@@ -61,8 +62,8 @@ export function UserMenu() {
                   <span className="text-xs font-semibold text-foreground">{initials}</span>
                 </div>
                 <div className="min-w-0">
-                  <p className="text-sm font-medium truncate">{USER_NAME}</p>
-                  <p className="text-xs text-muted-foreground truncate">{USER_ROLE}</p>
+                  <p className="text-sm font-medium truncate">{fullName}</p>
+                  <p className="text-xs text-muted-foreground truncate">Administrator</p>
                 </div>
               </div>
             </div>

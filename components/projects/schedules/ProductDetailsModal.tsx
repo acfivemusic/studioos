@@ -275,17 +275,20 @@ export function ProductDetailsModal({ product, onClose, onSave }: ProductDetails
 
         {/* Footer */}
         <div className="flex items-center justify-between px-6 py-4 border-t border-border flex-shrink-0">
-          <div className="flex items-center gap-2 text-xs text-muted-foreground">
-            {form.unitCost && form.quantity && (
-              <span>
-                Total: A${(parseFloat(form.unitCost || '0') * parseFloat(form.quantity || '1')).toLocaleString('en-AU', { minimumFractionDigits: 2 })}
-              </span>
-            )}
+          <div className="flex items-center gap-2">
+            <button onClick={() => {}} className="notion-button border border-border text-sm">
+              <span className="material-icons-outlined" style={{ fontSize: 15 }}>visibility</span>
+              Preview Spec Sheet
+            </button>
+            <button onClick={() => {}} className="notion-button border border-border text-sm">
+              <span className="material-icons-outlined" style={{ fontSize: 15 }}>download</span>
+              Download PDF Spec Sheet
+            </button>
           </div>
           <div className="flex items-center gap-2">
             <button onClick={onClose} className="notion-button border border-border text-sm">Cancel</button>
             <button onClick={handleSave} className="notion-button bg-foreground text-background hover:bg-foreground/90 text-sm">
-              Save Changes
+              Save
             </button>
           </div>
         </div>

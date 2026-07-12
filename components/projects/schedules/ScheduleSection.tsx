@@ -34,6 +34,9 @@ interface ScheduleSectionProps {
   onDrop: (e: React.DragEvent, productId: string, sectionId: string) => void;
   onDragEnd: () => void;
   dragOverProductId: string | null;
+  onDropOnSection: (e: React.DragEvent, sectionId: string) => void;
+  dragOverSectionId: string | null;
+  setDragOverSectionId: (id: string | null) => void;
 }
 
 export function ScheduleSection({
@@ -61,6 +64,9 @@ export function ScheduleSection({
   onDrop,
   onDragEnd,
   dragOverProductId,
+  onDropOnSection,
+  dragOverSectionId,
+  setDragOverSectionId,
 }: ScheduleSectionProps) {
   const [editingName, setEditingName] = useState(false);
   const [nameValue, setNameValue] = useState(section.name);
@@ -203,7 +209,12 @@ export function ScheduleSection({
 
         {/* Products — sit directly on the page, no wrapper */}
         {!section.collapsed && (
-          <>
+          <div
+            onDragOver={(e) => { e.preventDefault(); setDragOverSectionId(section.id); }}
+            onDragLeave={() => setDragOverSectionId(null)}
+            onDrop={(e) => { onDropOnSection(e, section.id); setDragOverSectionId(null); }}
+            className={dragOverSectionId === section.id ? 'rounded-xl bg-muted/20 ring-2 ring-blue-400/40 ring-inset' : ''}
+          >
             {section.products.map((product) => (
               <div
                 key={product.id}
@@ -247,7 +258,7 @@ export function ScheduleSection({
                 Add Product from Library
               </button>
             </div>
-          </>
+          </div>
         )}
       </div>
     </>

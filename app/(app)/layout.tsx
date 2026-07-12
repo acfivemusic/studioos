@@ -6,12 +6,14 @@ import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { useTheme } from 'next-themes';
 import { DesignerProvider } from '@/lib/designer-context';
+import { SettingsProvider } from '@/lib/settings-context';
 import { NotificationProvider } from '@/lib/notification-context';
 import { ProjectsProvider } from '@/lib/projects-context';
 import { NotificationCenter } from '@/components/NotificationCenter';
 import { UserMenu } from '@/components/UserMenu';
 import { mockProjects } from '@/lib/projects-data';
 import { mockClients, mockLeads } from '@/lib/crm-data';
+import { mockSchedules } from '@/lib/schedules-data';
 
 // ── Theme Toggle (pill switch style) ─────────────────────────────────────────
 function ThemeToggle() {
@@ -77,6 +79,18 @@ const hardcodedTasks = [
   { label: 'Client Brief Sign-Off', sub: 'Mosman Terrace', href: '/tasks' },
   { label: 'FF&E Schedule Draft', sub: 'Rose Bay Villa', href: '/tasks' },
 ];
+const hardcodedProducts = [
+  { label: 'Nordic Pendant Light', sub: 'Lighting', href: '/products' },
+  { label: 'Oak Dining Table', sub: 'Furniture', href: '/products' },
+  { label: 'Marble Coffee Table', sub: 'Furniture', href: '/products' },
+  { label: 'Linen Sofa Cover', sub: 'Textiles', href: '/products' },
+  { label: 'Brass Wall Sconce', sub: 'Lighting', href: '/products' },
+];
+const hardcodedInvoices = [
+  { label: 'INV-2024-001', sub: 'Hampton Residence · A$45,000', href: '/finance' },
+  { label: 'INV-2024-002', sub: 'Darling Point · A$28,500', href: '/finance' },
+  { label: 'INV-2024-003', sub: 'Vaucluse House · A$72,000', href: '/finance' },
+];
 
 type SearchResult = { type: string; label: string; sub?: string; href: string };
 
@@ -121,16 +135,34 @@ function GlobalSearch() {
       .map(v => ({ type: 'Vendors', ...v }));
 
     const tasks = hardcodedTasks
-      .filter(t => t.label.toLowerCase().includes(q))
+      .filter(t => t.label.toLowerCase().includes(q) || t.sub.toLowerCase().includes(q))
       .slice(0, 3)
       .map(t => ({ type: 'Tasks', ...t }));
+
+    const products = hardcodedProducts
+      .filter(p => p.label.toLowerCase().includes(q) || p.sub.toLowerCase().includes(q))
+      .slice(0, 3)
+      .map(p => ({ type: 'Products', ...p }));
+
+    const schedules = mockSchedules
+      .filter(s => s.name.toLowerCase().includes(q))
+      .slice(0, 3)
+      .map(s => ({ type: 'Schedules', label: s.name, sub: `${s.sections.length} sections`, href: '/projects' }));
+
+    const invoices = hardcodedInvoices
+      .filter(i => i.label.toLowerCase().includes(q) || i.sub.toLowerCase().includes(q))
+      .slice(0, 3)
+      .map(i => ({ type: 'Invoices', ...i }));
 
     const grouped: { group: string; items: SearchResult[] }[] = [];
     if (projects.length) grouped.push({ group: 'Projects', items: projects });
     if (clients.length) grouped.push({ group: 'Clients', items: clients });
     if (leads.length) grouped.push({ group: 'Leads', items: leads });
     if (vendors.length) grouped.push({ group: 'Vendors', items: vendors });
+    if (products.length) grouped.push({ group: 'Products', items: products });
+    if (schedules.length) grouped.push({ group: 'Schedules', items: schedules });
     if (tasks.length) grouped.push({ group: 'Tasks', items: tasks });
+    if (invoices.length) grouped.push({ group: 'Invoices', items: invoices });
     return grouped;
   }, [query]);
 
@@ -295,12 +327,14 @@ function AppLayoutInner({ children }: { children: ReactNode }) {
 
 export default function AppLayout({ children }: { children: ReactNode }) {
   return (
-    <DesignerProvider>
-      <NotificationProvider>
-        <ProjectsProvider>
-          <AppLayoutInner>{children}</AppLayoutInner>
-        </ProjectsProvider>
-      </NotificationProvider>
-    </DesignerProvider>
+    <SettingsProvider>
+      <DesignerProvider>
+        <NotificationProvider>
+          <ProjectsProvider>
+            <AppLayoutInner>{children}</AppLayoutInner>
+          </ProjectsProvider>
+        </NotificationProvider>
+      </DesignerProvider>
+    </SettingsProvider>
   );
 }

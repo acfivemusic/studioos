@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { SidePanel } from '@/components/ui/SidePanel';
+import { useSettings } from '@/lib/settings-context';
 
 const DEFAULT_PHASES = [
   'Discovery',
@@ -14,9 +15,11 @@ const DEFAULT_PHASES = [
 ];
 
 export default function SettingsPage() {
-  const [studioName, setStudioName] = useState('Design Studio HQ');
-  const [yourName, setYourName] = useState('Ellie Sanders');
-  const [email, setEmail] = useState('ellie@studio.com');
+  const { settings, updateSettings } = useSettings();
+  const [studioName, setStudioName] = useState(settings.studioName);
+  const [firstName, setFirstName] = useState(settings.firstName);
+  const [lastName, setLastName] = useState(settings.lastName);
+  const [email, setEmail] = useState(settings.email);
   const [saved, setSaved] = useState(false);
   const [phases, setPhases] = useState(DEFAULT_PHASES);
   const [showAddPhase, setShowAddPhase] = useState(false);
@@ -24,6 +27,7 @@ export default function SettingsPage() {
   const [newPhase, setNewPhase] = useState('');
 
   const handleSave = () => {
+    updateSettings({ studioName, firstName, lastName, email });
     setSaved(true);
     setTimeout(() => setSaved(false), 2500);
   };
@@ -115,8 +119,12 @@ export default function SettingsPage() {
                 <input type="text" value={studioName} onChange={e => setStudioName(e.target.value)} className="modal-input" />
               </div>
               <div>
-                <label className="text-xs text-muted-foreground block mb-1.5">Your Name</label>
-                <input type="text" value={yourName} onChange={e => setYourName(e.target.value)} className="modal-input" />
+                <label className="text-xs text-muted-foreground block mb-1.5">First Name</label>
+                <input type="text" value={firstName} onChange={e => setFirstName(e.target.value)} className="modal-input" />
+              </div>
+              <div>
+                <label className="text-xs text-muted-foreground block mb-1.5">Last Name</label>
+                <input type="text" value={lastName} onChange={e => setLastName(e.target.value)} className="modal-input" />
               </div>
               <div>
                 <label className="text-xs text-muted-foreground block mb-1.5">Email</label>

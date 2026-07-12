@@ -8,6 +8,7 @@ import { useProjects } from '@/lib/projects-context';
 import { NewProjectModal, NewProjectData } from '@/components/projects/NewProjectModal';
 import { NewLeadModal } from '@/components/crm/NewLeadModal';
 import { SidePanel } from '@/components/ui/SidePanel';
+import { useSettings } from '@/lib/settings-context';
 import { ProjectStatusBadge } from '@/components/projects/ProjectStatusBadge';
 
 interface DashTask {
@@ -37,6 +38,7 @@ const STATUS_OPTIONS = ['All Statuses', 'Active', 'On Hold', 'Completed'];
 
 export default function DashboardPage() {
   const { projects, addProject } = useProjects();
+  const { settings } = useSettings();
   const [showNewProject, setShowNewProject] = useState(false);
   const [showNewLead, setShowNewLead] = useState(false);
   const [showNewInvoice, setShowNewInvoice] = useState(false);
@@ -131,7 +133,7 @@ export default function DashboardPage() {
         <div className="flex items-start justify-between gap-4 flex-wrap">
           <div>
             <h1 className="text-2xl font-semibold">Dashboard</h1>
-            <p className="text-muted-foreground text-sm mt-0.5">Welcome back, Ellie.</p>
+            <p className="text-muted-foreground text-sm mt-0.5">Welcome back, {settings.firstName}.</p>
           </div>
           <div className="flex items-center gap-2">
             <button onClick={() => setShowNewProject(true)} className="btn-primary">
