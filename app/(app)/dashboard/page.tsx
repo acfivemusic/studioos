@@ -232,7 +232,14 @@ export default function DashboardPage() {
           </div>
 
           <div className="card-base overflow-hidden">
-            <table className="w-full">
+            <table className="w-full table-fixed">
+              <colgroup>
+                <col className="w-1/5" />
+                <col className="w-1/5" />
+                <col className="w-1/5" />
+                <col className="w-1/5" />
+                <col className="w-1/5" />
+              </colgroup>
               <thead>
                 <tr className="border-b border-border bg-muted/20">
                   <th className="table-header text-left">Project</th>
@@ -256,15 +263,15 @@ export default function DashboardPage() {
                         <p className="font-medium text-sm">{project.name}</p>
                         <p className="text-xs text-muted-foreground">{project.address}</p>
                       </td>
-                      <td className="table-cell text-sm text-muted-foreground">{project.client?.primaryContact || '—'}</td>
-                      <td className="table-cell text-sm text-muted-foreground">{project.currentPhase}</td>
+                      <td className="table-cell text-sm text-muted-foreground overflow-hidden text-ellipsis whitespace-nowrap">{project.client?.primaryContact || '—'}</td>
+                      <td className="table-cell text-sm text-muted-foreground overflow-hidden text-ellipsis whitespace-nowrap">{project.currentPhase}</td>
                       <td className="table-cell"><ProjectStatusBadge status={project.status} /></td>
                       <td className="table-cell text-right">
                         <div className="flex items-center justify-end gap-2">
-                          <div className="w-20 h-1.5 bg-muted rounded-full overflow-hidden">
+                          <div className="flex-1 h-1.5 bg-muted rounded-full overflow-hidden max-w-[120px]">
                             <div className="h-full rounded-full transition-all" style={{ width: `${project.progress}%`, background: 'rgba(51,51,51,0.35)' }} />
                           </div>
-                          <span className="text-xs text-muted-foreground w-8 text-right">{project.progress}%</span>
+                          <span className="text-xs text-muted-foreground w-8 text-right flex-shrink-0">{project.progress}%</span>
                         </div>
                       </td>
                     </tr>

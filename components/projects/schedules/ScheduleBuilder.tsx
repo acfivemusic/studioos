@@ -473,7 +473,7 @@ export function ScheduleBuilder({ schedule, onChange }: ScheduleBuilderProps) {
       </div>
 
       {/* ── Schedule Content — sits directly on page ── */}
-      <div className="pb-8">
+      <div className="pt-4 pb-8">
         {/* Financial Summary slim card — only in financial view */}
         {viewMode === 'financial' && (
           <div className="mb-4 px-4 py-3 card-base">

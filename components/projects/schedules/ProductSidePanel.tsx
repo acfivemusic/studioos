@@ -197,8 +197,8 @@ export function ProductSidePanel({
                   <div className="flex items-center gap-1.5 w-full">
                     <PanelInput value={form.productUrl} onChange={v => set('productUrl', v)} placeholder="https://" className="flex-1" />
                     {form.productUrl && (
-                      <a href={form.productUrl} target="_blank" rel="noopener noreferrer" className="p-1 hover:bg-muted rounded transition-colors text-muted-foreground flex-shrink-0">
-                        <span className="material-icons-outlined" style={{ fontSize: 14 }}>open_in_new</span>
+                      <a href={form.productUrl} target="_blank" rel="noopener noreferrer" className="text-sm text-foreground underline hover:text-muted-foreground transition-colors flex-shrink-0 whitespace-nowrap">
+                        Product Link
                       </a>
                     )}
                   </div>

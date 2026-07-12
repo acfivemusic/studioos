@@ -4,7 +4,6 @@ import { ReactNode, useState, useEffect, useRef, useMemo } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
-import { useTheme } from 'next-themes';
 import { DesignerProvider } from '@/lib/designer-context';
 import { SettingsProvider } from '@/lib/settings-context';
 import { NotificationProvider } from '@/lib/notification-context';
@@ -14,34 +13,6 @@ import { UserMenu } from '@/components/UserMenu';
 import { mockProjects } from '@/lib/projects-data';
 import { mockClients, mockLeads } from '@/lib/crm-data';
 import { mockSchedules } from '@/lib/schedules-data';
-
-// ── Theme Toggle (pill switch style) ─────────────────────────────────────────
-function ThemeToggle() {
-  const { resolvedTheme, setTheme } = useTheme();
-  const [mounted, setMounted] = useState(false);
-  useEffect(() => setMounted(true), []);
-  if (!mounted) return <div className="w-14 h-7" />;
-  const isDark = resolvedTheme === 'dark';
-  return (
-    <button
-      onClick={() => setTheme(isDark ? 'light' : 'dark')}
-      title={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
-      className={`relative w-12 h-6 rounded-full transition-colors duration-300 focus:outline-none border border-border/40 ${
-        isDark ? 'bg-foreground/30' : 'bg-foreground/10'
-      }`}
-    >
-      <span
-        className={`absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-card flex items-center justify-center shadow-sm transition-transform duration-300 ${
-          isDark ? 'translate-x-6' : 'translate-x-0'
-        }`}
-      >
-        <span className="material-icons-outlined text-foreground" style={{ fontSize: 12 }}>
-          {isDark ? 'dark_mode' : 'light_mode'}
-        </span>
-      </span>
-    </button>
-  );
-}
 
 // ── Nav items ─────────────────────────────────────────────────────────────────
 const topNav = [
@@ -309,7 +280,6 @@ function AppLayoutInner({ children }: { children: ReactNode }) {
         {/* Header — transparent, no border */}
         <header className="h-14 flex-shrink-0 sticky top-0 z-10 px-4 flex items-center justify-end gap-2.5">
           <GlobalSearch />
-          <ThemeToggle />
           <NotificationCenter />
           <UserMenu />
         </header>

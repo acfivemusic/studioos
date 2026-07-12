@@ -19,7 +19,7 @@ export function NewClientModal({ onClose }: NewClientModalProps) {
     setForm((prev) => ({ ...prev, [field]: value }));
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center">
+    <div className="fixed inset-0 z-[60] flex items-center justify-center">
       <div className="absolute inset-0 bg-black/20" onClick={onClose} />
       <div className="relative bg-card border border-border rounded-2xl shadow-xl w-full max-w-lg max-h-[90vh] flex flex-col mx-4 overflow-hidden">
         <div className="flex items-center justify-between px-6 py-4 border-b border-border flex-shrink-0">

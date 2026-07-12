@@ -192,6 +192,16 @@ export function ProductDetailsModal({ product, onClose, onSave }: ProductDetails
                   <FormRow label="Manufacturer">
                     <ModalInput value={form.manufacturer} onChange={(v) => set('manufacturer', v)} placeholder="Manufacturer" />
                   </FormRow>
+                  <FormRow label="Product URL" className="col-span-2">
+                    <div className="flex items-center gap-2">
+                      <ModalInput value={form.productUrl} onChange={(v) => set('productUrl', v)} placeholder="https://" />
+                      {form.productUrl && (
+                        <a href={form.productUrl} target="_blank" rel="noopener noreferrer" className="text-sm text-foreground underline hover:text-muted-foreground transition-colors flex-shrink-0">
+                          Product Link
+                        </a>
+                      )}
+                    </div>
+                  </FormRow>
                 </div>
               </div>
             )}
@@ -281,8 +291,8 @@ export function ProductDetailsModal({ product, onClose, onSave }: ProductDetails
               Preview Spec Sheet
             </button>
             <button onClick={() => {}} className="notion-button border border-border text-sm">
-              <span className="material-icons-outlined" style={{ fontSize: 15 }}>download</span>
-              Download PDF Spec Sheet
+              <span className="material-icons-outlined" style={{ fontSize: 15 }}>picture_as_pdf</span>
+              Export Spec Sheet
             </button>
           </div>
           <div className="flex items-center gap-2">
@@ -316,9 +326,9 @@ function ModalInput({
   );
 }
 
-function FormRow({ label, children }: { label: string; children: React.ReactNode }) {
+function FormRow({ label, children, className }: { label: string; children: React.ReactNode; className?: string }) {
   return (
-    <div>
+    <div className={className}>
       <label className="block text-xs text-muted-foreground mb-1.5">{label}</label>
       {children}
     </div>

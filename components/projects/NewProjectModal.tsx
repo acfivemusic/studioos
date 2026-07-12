@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { PROJECT_PHASES, PROJECT_STATUSES, PROJECT_TYPES, ProjectStatus, ProjectPhase, ProjectType } from '@/lib/projects-data';
 import { ClientSelect } from './ClientSelect';
+import { SelectDropdown } from './SelectDropdown';
 import { DesignerSelect } from '@/components/crm/DesignerSelect';
 import { NewClientModal } from '@/components/crm/NewClientModal';
 import { DatePicker } from '@/components/ui/DatePicker';
@@ -101,9 +102,7 @@ export function NewProjectModal({ onClose, onSave }: NewProjectModalProps) {
                 <input value={form.name} onChange={(e) => set('name', e.target.value)} placeholder="Hampton Residence" className="modal-input" />
               </Field>
               <Field label="Project Type">
-                <select value={form.projectType} onChange={(e) => set('projectType', e.target.value as ProjectType)} className="modal-input">
-                  {PROJECT_TYPES.map((t) => <option key={t}>{t}</option>)}
-                </select>
+                <SelectDropdown value={form.projectType} options={PROJECT_TYPES} onChange={(v) => set('projectType', v)} />
               </Field>
               <Field label="Project Address" className="col-span-2">
                 <input value={form.address} onChange={(e) => set('address', e.target.value)} placeholder="24 Balmoral Avenue, Mosman NSW 2088" className="modal-input" />
@@ -112,14 +111,10 @@ export function NewProjectModal({ onClose, onSave }: NewProjectModalProps) {
                 <textarea value={form.description} onChange={(e) => set('description', e.target.value)} rows={3} placeholder="Brief description of the project..." className="modal-input resize-none" />
               </Field>
               <Field label="Current Phase">
-                <select value={form.currentPhase} onChange={(e) => set('currentPhase', e.target.value as ProjectPhase)} className="modal-input">
-                  {PROJECT_PHASES.map((p) => <option key={p}>{p}</option>)}
-                </select>
+                <SelectDropdown value={form.currentPhase} options={PROJECT_PHASES} onChange={(v) => set('currentPhase', v)} />
               </Field>
               <Field label="Project Status">
-                <select value={form.status} onChange={(e) => set('status', e.target.value as ProjectStatus)} className="modal-input">
-                  {PROJECT_STATUSES.filter((s) => s !== 'Archived').map((s) => <option key={s}>{s}</option>)}
-                </select>
+                <SelectDropdown value={form.status} options={PROJECT_STATUSES.filter((s) => s !== 'Archived')} onChange={(v) => set('status', v)} />
               </Field>
               <Field label="Estimated Budget">
                 <input value={form.estimatedBudget} onChange={(e) => set('estimatedBudget', e.target.value)} placeholder="$320,000" className="modal-input" />

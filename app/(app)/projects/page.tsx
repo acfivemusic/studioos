@@ -331,7 +331,17 @@ export default function ProjectsPage() {
           </div>
         ) : (
           <div className="bg-card border border-border rounded-xl overflow-hidden">
-            <table className="w-full">
+            <table className="w-full table-fixed">
+              <colgroup>
+                <col className="w-[28%]" />
+                <col className="w-[14%]" />
+                <col className="w-[14%]" />
+                <col className="w-[12%]" />
+                <col className="w-[12%]" />
+                <col className="w-[10%]" />
+                <col className="w-[8%]" />
+                <col className="w-[2%]" />
+              </colgroup>
               <thead>
                 <tr className="border-b border-border bg-muted/30">
                   <th className="table-header text-left">Project</th>
@@ -341,7 +351,7 @@ export default function ProjectsPage() {
                   <th className="table-header text-left">Manager</th>
                   <th className="table-header text-right">Budget</th>
                   <th className="table-header text-left">Target</th>
-                  <th className="table-header w-12" />
+                  <th className="w-12" />
                 </tr>
               </thead>
               <tbody>
@@ -355,12 +365,12 @@ export default function ProjectsPage() {
                           <p className="text-xs text-muted-foreground">{project.address}</p>
                         </Link>
                       </td>
-                      <td className="table-cell text-muted-foreground">{client?.primaryContact || '—'}</td>
-                      <td className="table-cell text-muted-foreground">{project.currentPhase}</td>
+                      <td className="table-cell text-muted-foreground overflow-hidden text-ellipsis whitespace-nowrap">{client?.primaryContact || '—'}</td>
+                      <td className="table-cell text-muted-foreground overflow-hidden text-ellipsis whitespace-nowrap">{project.currentPhase}</td>
                       <td className="table-cell"><ProjectStatusBadge status={project.status} /></td>
-                      <td className="table-cell text-muted-foreground">{project.projectManager}</td>
+                      <td className="table-cell text-muted-foreground overflow-hidden text-ellipsis whitespace-nowrap">{project.projectManager}</td>
                       <td className="table-cell text-right text-muted-foreground">{formatBudget(project.estimatedBudget)}</td>
-                      <td className="table-cell text-muted-foreground">{project.targetCompletion}</td>
+                      <td className="table-cell text-muted-foreground overflow-hidden text-ellipsis whitespace-nowrap">{project.targetCompletion}</td>
                       <td className="table-cell">
                         <div className="flex items-center gap-1">
                           <Link href={`/projects/${project.id}`} className="p-1 hover:bg-muted rounded text-muted-foreground">
