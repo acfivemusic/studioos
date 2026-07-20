@@ -17,7 +17,7 @@ export function PinButton({ pinned, onToggle }: PinButtonProps) {
   return (
     <button
       onClick={handleClick}
-      title={pinned ? 'Unpin' : 'Pin'}
+
       className={`
         w-7 h-7 flex items-center justify-center rounded
         border transition-colors cursor-pointer flex-shrink-0

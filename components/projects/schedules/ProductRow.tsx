@@ -95,7 +95,7 @@ export function ProductRow({
       <div
         onClick={() => startEdit(field, value)}
         className="cursor-text group/cell"
-        title={`Edit ${label}`}
+
       >
         <span className={`text-xs font-medium truncate block max-w-[120px] ${value ? 'text-foreground' : 'text-muted-foreground'}`}>
           {displayVal(value)}
@@ -183,7 +183,7 @@ export function ProductRow({
             <p
               onClick={() => startEdit('name', product.name)}
               className="text-xs font-medium text-foreground cursor-text truncate mb-0.5 leading-snug"
-              title={product.name}
+
             >
               {product.name || 'Untitled Product'}
             </p>
@@ -203,7 +203,7 @@ export function ProductRow({
             <p
               onClick={() => startEdit('brand', product.brand)}
               className="text-xs text-muted-foreground cursor-text truncate"
-              title={product.brand}
+
             >
               {product.brand || 'Brand'}
             </p>

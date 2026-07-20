@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useMemo, useRef, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { Search, Filter, Plus, Calendar, X, Ellipsis as MoreHorizontal, Pencil, Trash2, GripVertical, Check, ChevronDown } from 'lucide-react';
 import { Project, PROJECT_PHASES } from '@/lib/projects-data';
 import { Task, TaskStatus } from '@/lib/crm-data';
@@ -31,36 +32,58 @@ interface TaskMenuProps {
 }
 function TaskMenu({ task, onEdit, onDelete }: TaskMenuProps) {
   const [open, setOpen] = useState(false);
-  const ref = useRef<HTMLDivElement>(null);
+  const [rect, setRect] = useState<DOMRect | null>(null);
+  const btnRef = useRef<HTMLButtonElement>(null);
   useEffect(() => {
-    const h = (e: MouseEvent) => { if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false); };
+    const h = (e: MouseEvent) => { if (btnRef.current && !btnRef.current.contains(e.target as Node)) setOpen(false); };
     document.addEventListener('mousedown', h);
-    return () => document.removeEventListener('mousedown', h);
+    document.addEventListener('scroll', () => setOpen(false), true);
+    return () => { document.removeEventListener('mousedown', h); document.removeEventListener('scroll', () => setOpen(false), true); };
   }, []);
-  return (
-    <div ref={ref} className="relative flex-shrink-0">
+  const handleToggle = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!open && btnRef.current) setRect(btnRef.current.getBoundingClientRect());
+    setOpen(!open);
+  };
+  const close = () => setOpen(false);
+  if (!open || !rect) {
+    return (
       <button
-        onClick={(e) => { e.stopPropagation(); setOpen(!open); }}
-        className="w-6 h-6 rounded flex items-center justify-center hover:bg-muted/80 transition-colors text-muted-foreground hover:text-foreground"
+        ref={btnRef}
+        onClick={handleToggle}
+        className="w-6 h-6 rounded flex items-center justify-center hover:bg-muted/80 transition-colors text-muted-foreground hover:text-foreground flex-shrink-0"
       >
         <MoreHorizontal size={14} />
       </button>
-      {open && (
-        <>
-          <div className="fixed inset-0 z-20" onClick={() => setOpen(false)} />
-          <div className="absolute right-0 top-7 w-36 bg-popover border border-border rounded-xl shadow-lg z-50 py-1 overflow-hidden">
-            <button onClick={() => { setOpen(false); onEdit(); }} className="w-full flex items-center gap-2.5 px-3 py-2 text-sm text-left hover:bg-muted transition-colors text-foreground">
-              <Pencil size={14} className="text-muted-foreground" />
-              Edit
-            </button>
-            <button onClick={() => { setOpen(false); onDelete(); }} className="w-full flex items-center gap-2.5 px-3 py-2 text-sm text-left hover:bg-red-50 transition-colors text-red-600">
-              <Trash2 size={14} />
-              Delete
-            </button>
-          </div>
-        </>
-      )}
-    </div>
+    );
+  }
+  const top = rect.bottom + 4;
+  const left = Math.min(rect.right - 144, window.innerWidth - 160);
+  return createPortal(
+    <>
+      <button
+        ref={btnRef}
+        onClick={handleToggle}
+        className="w-6 h-6 rounded flex items-center justify-center hover:bg-muted/80 transition-colors text-muted-foreground hover:text-foreground flex-shrink-0"
+      >
+        <MoreHorizontal size={14} />
+      </button>
+      <div className="fixed inset-0 z-[60]" onClick={close} />
+      <div
+        className="fixed z-[61] w-36 bg-popover border border-border rounded-xl shadow-lg py-1 overflow-hidden"
+        style={{ top, left }}
+      >
+        <button onClick={() => { close(); onEdit(); }} className="w-full flex items-center gap-2.5 px-3 py-2 text-sm text-left hover:bg-muted transition-colors text-foreground">
+          <Pencil size={14} className="text-muted-foreground" />
+          Edit
+        </button>
+        <button onClick={() => { close(); onDelete(); }} className="w-full flex items-center gap-2.5 px-3 py-2 text-sm text-left hover:bg-red-50 transition-colors text-red-600">
+          <Trash2 size={14} />
+          Delete
+        </button>
+      </div>
+    </>,
+    document.body
   );
 }
 
@@ -356,7 +379,6 @@ export function PlannerTab({ project, onUpdateTasks }: PlannerTabProps) {
               <button
                 onClick={() => setAddingTask(addingTask?.status === status ? null : { status, title: '' })}
                 className="flex items-center gap-1 h-6 px-2 rounded text-xs font-medium hover:bg-muted transition-colors text-muted-foreground hover:text-foreground"
-                title={`Add task to ${status}`}
               >
                 <Plus size={14} />
                 Add New Task

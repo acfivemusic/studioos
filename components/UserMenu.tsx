@@ -39,7 +39,7 @@ export function UserMenu() {
         <button
           onClick={() => setOpen(!open)}
           className="w-9 h-9 rounded-lg bg-muted border border-border flex items-center justify-center transition-colors hover:bg-muted/80 flex-shrink-0"
-          title={fullName}
+
         >
           <span className="text-sm font-semibold text-foreground select-none">{initial}</span>
         </button>

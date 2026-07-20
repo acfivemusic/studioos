@@ -66,8 +66,8 @@ export function SchedulesTab({ projectId }: SchedulesTabProps) {
   if (activeSchedule) {
     return (
       <div>
-        {/* Navigation bar — All button left, matches Projects toolbar style */}
-        <div className="flex items-center gap-2 px-4 py-3">
+        {/* Navigation bar — All button left, matches Planner toolbar style */}
+        <div className="flex items-center gap-2 py-3">
           <div className="flex border border-border rounded-lg overflow-hidden">
             <button
               onClick={() => setActiveScheduleId(null)}
@@ -161,7 +161,7 @@ export function SchedulesTab({ projectId }: SchedulesTabProps) {
       )}
 
       {/* Toolbar — left: All tab, right: search/sort/new */}
-      <div className="flex items-center gap-2 px-4 py-3">
+      <div className="flex items-center gap-2 py-3">
         {/* Left: "All" tab */}
         <div className="flex border border-border rounded-lg overflow-hidden">
           <button className="h-8 px-3 text-sm view-toggle-active">
@@ -237,7 +237,7 @@ export function SchedulesTab({ projectId }: SchedulesTabProps) {
       </div>
 
       {/* Content */}
-      <div className="p-4">
+      <div className="space-y-4">
         {schedules.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-20 text-center">
             <div className="w-16 h-16 rounded-2xl bg-muted flex items-center justify-center mb-4">

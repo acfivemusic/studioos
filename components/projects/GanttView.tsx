@@ -1,6 +1,7 @@
 'use client';
 
 import { useMemo, useState, useRef, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { Plus, Ellipsis as MoreHorizontal, Pencil, Trash2, CircleCheck as CheckCircle2, ChevronUp, ChevronDown, Check } from 'lucide-react';
 import { SidePanel } from '@/components/ui/SidePanel';
 import { DatePicker } from '@/components/ui/DatePicker';
@@ -57,44 +58,66 @@ interface PhaseMenuProps {
 }
 function PhaseMenu({ phase, isFirst, isLast, canReorder, onEdit, onDelete, onMoveUp, onMoveDown }: PhaseMenuProps) {
   const [open, setOpen] = useState(false);
-  const ref = useRef<HTMLDivElement>(null);
+  const [rect, setRect] = useState<DOMRect | null>(null);
+  const btnRef = useRef<HTMLButtonElement>(null);
   useEffect(() => {
-    const h = (e: MouseEvent) => { if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false); };
+    const h = (e: MouseEvent) => { if (btnRef.current && !btnRef.current.contains(e.target as Node)) setOpen(false); };
     document.addEventListener('mousedown', h);
-    return () => document.removeEventListener('mousedown', h);
+    document.addEventListener('scroll', () => setOpen(false), true);
+    return () => { document.removeEventListener('mousedown', h); document.removeEventListener('scroll', () => setOpen(false), true); };
   }, []);
-  return (
-    <div ref={ref} className="relative flex-shrink-0 z-50">
+  const handleToggle = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!open && btnRef.current) setRect(btnRef.current.getBoundingClientRect());
+    setOpen(!open);
+  };
+  const close = () => setOpen(false);
+  if (!open || !rect) {
+    return (
       <button
-        onClick={(e) => { e.stopPropagation(); setOpen(!open); }}
-        className="w-6 h-6 rounded flex items-center justify-center hover:bg-muted transition-colors text-muted-foreground hover:text-foreground"
+        ref={btnRef}
+        onClick={handleToggle}
+        className="w-6 h-6 rounded flex items-center justify-center hover:bg-muted transition-colors text-muted-foreground hover:text-foreground flex-shrink-0"
       >
         <MoreHorizontal size={15} />
       </button>
-      {open && (
-        <>
-          <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} />
-          <div className="absolute right-0 top-7 w-40 bg-popover border border-border rounded-xl shadow-lg z-50 py-1 overflow-hidden">
-            <button onClick={() => { setOpen(false); onEdit(); }} className="w-full flex items-center gap-2.5 px-3 py-2 text-sm text-left hover:bg-muted transition-colors text-foreground">
-              <Pencil size={14} className="text-muted-foreground" /> Edit phase
+    );
+  }
+  const top = rect.bottom + 4;
+  const left = Math.min(rect.right - 160, window.innerWidth - 180);
+  return createPortal(
+    <>
+      <button
+        ref={btnRef}
+        onClick={handleToggle}
+        className="w-6 h-6 rounded flex items-center justify-center hover:bg-muted transition-colors text-muted-foreground hover:text-foreground flex-shrink-0"
+      >
+        <MoreHorizontal size={15} />
+      </button>
+      <div className="fixed inset-0 z-[60]" onClick={close} />
+      <div
+        className="fixed z-[61] w-40 bg-popover border border-border rounded-xl shadow-lg py-1 overflow-hidden"
+        style={{ top, left }}
+      >
+        <button onClick={() => { close(); onEdit(); }} className="w-full flex items-center gap-2.5 px-3 py-2 text-sm text-left hover:bg-muted transition-colors text-foreground">
+          <Pencil size={14} className="text-muted-foreground" /> Edit phase
+        </button>
+        {canReorder && (
+          <>
+            <button onClick={() => { close(); onMoveUp(); }} disabled={isFirst} className="w-full flex items-center gap-2.5 px-3 py-2 text-sm text-left hover:bg-muted transition-colors text-foreground disabled:opacity-30 disabled:cursor-not-allowed">
+              <ChevronUp size={14} className="text-muted-foreground" /> Move up
             </button>
-            {canReorder && (
-              <>
-                <button onClick={() => { setOpen(false); onMoveUp(); }} disabled={isFirst} className="w-full flex items-center gap-2.5 px-3 py-2 text-sm text-left hover:bg-muted transition-colors text-foreground disabled:opacity-30 disabled:cursor-not-allowed">
-                  <ChevronUp size={14} className="text-muted-foreground" /> Move up
-                </button>
-                <button onClick={() => { setOpen(false); onMoveDown(); }} disabled={isLast} className="w-full flex items-center gap-2.5 px-3 py-2 text-sm text-left hover:bg-muted transition-colors text-foreground disabled:opacity-30 disabled:cursor-not-allowed">
-                  <ChevronDown size={14} className="text-muted-foreground" /> Move down
-                </button>
-              </>
-            )}
-            <button onClick={() => { setOpen(false); onDelete(); }} className="w-full flex items-center gap-2.5 px-3 py-2 text-sm text-left hover:bg-red-50 transition-colors text-red-600">
-              <Trash2 size={14} /> Delete phase
+            <button onClick={() => { close(); onMoveDown(); }} disabled={isLast} className="w-full flex items-center gap-2.5 px-3 py-2 text-sm text-left hover:bg-muted transition-colors text-foreground disabled:opacity-30 disabled:cursor-not-allowed">
+              <ChevronDown size={14} className="text-muted-foreground" /> Move down
             </button>
-          </div>
-        </>
-      )}
-    </div>
+          </>
+        )}
+        <button onClick={() => { close(); onDelete(); }} className="w-full flex items-center gap-2.5 px-3 py-2 text-sm text-left hover:bg-red-50 transition-colors text-red-600">
+          <Trash2 size={14} /> Delete phase
+        </button>
+      </div>
+    </>,
+    document.body
   );
 }
 
@@ -518,7 +541,6 @@ export function GanttView({ projectName, currentPhaseName, customPhases, onAddPh
                       <div
                         className={`absolute top-1/2 -translate-y-1/2 rounded-lg ${colors.bar} overflow-hidden transition-all`}
                         style={{ left: barLeft, width: barWidth, height: 26 }}
-                        title={`${phase.name} · ${phase.progress}%`}
                       >
                         <div className={`absolute inset-y-0 left-0 rounded-l-lg ${colors.fill}`} style={{ width: `${phase.progress}%` }} />
                         <span className={`absolute inset-0 flex items-center px-2 text-[11px] font-medium truncate ${colors.text}`}>
