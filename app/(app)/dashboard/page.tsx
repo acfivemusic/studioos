@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import Link from 'next/link';
 import { Project } from '@/lib/projects-data';
 import { Client } from '@/lib/crm-data';
@@ -49,6 +49,8 @@ export default function DashboardPage() {
   const [showAddProduct, setShowAddProduct] = useState(false);
   const [showAddSupplier, setShowAddSupplier] = useState(false);
   const [showAllActivity, setShowAllActivity] = useState(false);
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
   const [newClient, setNewClient] = useState({ name: '', company: '', email: '', phone: '' });
   const [newProduct, setNewProduct] = useState({ name: '', category: 'Furniture', vendor: '', price: '' });
   const [newSupplier, setNewSupplier] = useState({ name: '', category: 'Furniture', contact: '', email: '', phone: '' });
@@ -291,7 +293,7 @@ export default function DashboardPage() {
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-medium leading-tight">{item.title}</p>
                       <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed">{item.description}</p>
-                      <p className="text-xs text-muted-foreground/60 mt-1">{item.source} · {timeAgo(item.timestamp)}</p>
+                      <p className="text-xs text-muted-foreground/60 mt-1">{item.source} · {mounted ? timeAgo(item.timestamp) : ''}</p>
                     </div>
                   </div>
                 ))}
@@ -304,7 +306,7 @@ export default function DashboardPage() {
       <div className="space-y-8">
         {/* Greeting */}
         <div>
-          <h1 className="text-2xl font-semibold">{getGreeting()}, {settings.firstName}</h1>
+          <h1 className="text-2xl font-semibold">{mounted ? getGreeting() : 'Hello'}, {settings.firstName}</h1>
         </div>
 
         {/* Quick Actions — 2x2 grid */}
@@ -403,7 +405,7 @@ export default function DashboardPage() {
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium leading-tight">{item.title}</p>
                     <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed">{item.description}</p>
-                    <p className="text-xs text-muted-foreground/60 mt-1">{item.source} · {timeAgo(item.timestamp)}</p>
+                    <p className="text-xs text-muted-foreground/60 mt-1">{item.source} · {mounted ? timeAgo(item.timestamp) : ''}</p>
                   </div>
                 </div>
               ))
