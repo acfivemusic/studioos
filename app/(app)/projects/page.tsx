@@ -229,7 +229,6 @@ export default function ProjectsPage() {
             <div className="relative">
               <button
                 onClick={() => { setShowTypeMenu(!showTypeMenu); setShowFilterMenu(false); setShowSortMenu(false); }}
-                title="Project Type"
                 className={`relative toolbar-icon-btn ${hasTypeFilter ? 'toolbar-icon-btn-active' : ''}`}
               >
                 <ListChecks size={18} />
@@ -247,7 +246,10 @@ export default function ProjectsPage() {
                     ))}
                     {hasTypeFilter && (
                       <div className="border-t border-border/40 px-3 pt-2 pb-1">
-                        <button onClick={() => { setTypeFilter('All Types'); setShowTypeMenu(false); }} className="text-xs text-muted-foreground hover:text-foreground">Clear Filters</button>
+                        <button onClick={() => { setTypeFilter('All Types'); setShowTypeMenu(false); }} className="text-xs text-muted-foreground hover:text-foreground flex items-center gap-1.5">
+                          <X size={12} />
+                          Clear Filters
+                        </button>
                       </div>
                     )}
                   </div>
@@ -259,7 +261,6 @@ export default function ProjectsPage() {
             <div className="relative">
               <button
                 onClick={() => setShowFilterMenu(!showFilterMenu)}
-                title="Filter"
                 className={`relative toolbar-icon-btn ${hasActiveFilters ? 'toolbar-icon-btn-active' : ''}`}
               >
                 <Filter size={18} />
@@ -285,7 +286,10 @@ export default function ProjectsPage() {
                     ))}
                     {hasActiveFilters && (
                       <div className="border-t border-border/40 px-3 pt-2 pb-1">
-                        <button onClick={() => { setPhaseFilter('All Phases'); setStatusFilter('All Statuses'); setShowFilterMenu(false); }} className="text-xs text-muted-foreground hover:text-foreground">Clear Filters</button>
+                        <button onClick={() => { setPhaseFilter('All Phases'); setStatusFilter('All Statuses'); setShowFilterMenu(false); }} className="text-xs text-muted-foreground hover:text-foreground flex items-center gap-1.5">
+                          <X size={12} />
+                          Clear Filters
+                        </button>
                       </div>
                     )}
                   </div>
@@ -297,7 +301,6 @@ export default function ProjectsPage() {
             <div className="relative">
               <button
                 onClick={() => setShowSortMenu(!showSortMenu)}
-                title="Sort"
                 className="toolbar-icon-btn"
               >
                 <ArrowUpDown size={18} />
@@ -342,14 +345,12 @@ export default function ProjectsPage() {
               <button
                 onClick={() => setView('card')}
                 className={`w-8 h-8 flex items-center justify-center transition-colors ${view === 'card' ? 'view-toggle-active' : 'text-muted-foreground hover:bg-muted/50'}`}
-                title="Card view"
               >
                 <LayoutGrid size={18} />
               </button>
               <button
                 onClick={() => setView('table')}
                 className={`w-8 h-8 flex items-center justify-center border-l border-border transition-colors ${view === 'table' ? 'view-toggle-active' : 'text-muted-foreground hover:bg-muted/50'}`}
-                title="Table view"
               >
                 <Rows3 size={18} />
               </button>

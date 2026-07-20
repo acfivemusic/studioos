@@ -100,7 +100,7 @@ export default function LeadDetailPage({ params }: Props) {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
         {/* Left column */}
         <div className="lg:col-span-1 space-y-4">
-          <DetailSection title="Overview">
+          <DetailSection>
             <div className="grid grid-cols-1 gap-3">
               <DetailField label="Status" value={<LeadStatusBadge status={lead.status} />} />
               <DetailField label="Budget" value={formatBudget(lead.estimatedBudget)} />
@@ -111,7 +111,7 @@ export default function LeadDetailPage({ params }: Props) {
             </div>
           </DetailSection>
 
-          <DetailSection title="Contact Details">
+          <DetailSection>
             <div className="space-y-3">
               <a href={`mailto:${lead.email}`} className="flex items-center gap-2 text-sm hover:underline">
                 <Mail size={16} className="text-muted-foreground" />
@@ -135,15 +135,15 @@ export default function LeadDetailPage({ params }: Props) {
 
         {/* Right columns */}
         <div className="lg:col-span-2 space-y-4">
-          <DetailSection title="Tasks" action={{ label: '+ Task', onClick: () => {} }}>
+          <DetailSection action={{ label: '+ Task', onClick: () => {} }}>
             <TaskList tasks={lead.tasks} />
           </DetailSection>
 
-          <DetailSection title="Notes">
+          <DetailSection>
             <NotesPanel notes={lead.notes} />
           </DetailSection>
 
-          <DetailSection title="Timeline">
+          <DetailSection>
             <Timeline events={[...lead.timeline].reverse()} />
           </DetailSection>
         </div>

@@ -75,7 +75,7 @@ export default function SettingsPage() {
   return (
     <>
       {showAddPhase && (
-        <SidePanel title="Add Phase" onClose={() => setShowAddPhase(false)} footer={
+        <SidePanel onClose={() => setShowAddPhase(false)} footer={
           <><div /><div className="flex gap-2">
             <button onClick={() => setShowAddPhase(false)} className="notion-button border border-border">Cancel</button>
             <button onClick={addPhase} className="btn-primary">Add Phase</button>
@@ -93,7 +93,7 @@ export default function SettingsPage() {
       )}
 
       {editingPhase !== null && (
-        <SidePanel title="Edit Phase" onClose={() => setEditingPhase(null)} footer={
+        <SidePanel onClose={() => setEditingPhase(null)} footer={
           <><div /><div className="flex gap-2">
             <button onClick={() => setEditingPhase(null)} className="notion-button border border-border">Cancel</button>
             <button onClick={savePhaseEdit} className="btn-primary">Save</button>

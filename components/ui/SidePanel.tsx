@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { X } from 'lucide-react';
 
 interface SidePanelProps {
-  title: string;
+  title?: string;
   subtitle?: string;
   onClose: () => void;
   children: React.ReactNode;

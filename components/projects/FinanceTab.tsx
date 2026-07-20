@@ -123,7 +123,6 @@ function AddInvoicePanel({ project, onClose, onSave }: AddInvoicePanelProps) {
 
   return (
     <SidePanel
-      title="New Invoice"
       subtitle={project.name}
       onClose={onClose}
       width="min(52vw, 780px)"

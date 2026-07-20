@@ -197,7 +197,7 @@ export default function TasksPage() {
     <>
       {/* Edit panel */}
       {editingTask && (
-        <SidePanel title="Edit Task" onClose={() => setEditingTask(null)} footer={
+        <SidePanel onClose={() => setEditingTask(null)} footer={
           <><div /><div className="flex gap-2">
             <button onClick={() => setEditingTask(null)} className="notion-button border border-border">Cancel</button>
             <button onClick={() => saveEdit(editingTask)} className="btn-primary">Save</button>
@@ -226,7 +226,7 @@ export default function TasksPage() {
 
       {/* Add task panel */}
       {showAddPanel && (
-        <SidePanel title="New Task" onClose={() => setShowAddPanel(false)} footer={
+        <SidePanel onClose={() => setShowAddPanel(false)} footer={
           <><div /><div className="flex gap-2">
             <button onClick={() => setShowAddPanel(false)} className="notion-button border border-border">Cancel</button>
             <button onClick={addTask} className="btn-primary">Add Task</button>
@@ -272,7 +272,7 @@ export default function TasksPage() {
 
           {/* Filter */}
           <div className="relative">
-            <button onClick={() => { setShowFilterMenu(!showFilterMenu); setShowSortMenu(false); }} title="Filter"
+            <button onClick={() => { setShowFilterMenu(!showFilterMenu); setShowSortMenu(false); }}
               className={`relative toolbar-icon-btn ${hasFilters ? 'toolbar-icon-btn-active' : ''}`}>
               <Filter size={18} />
             </button>
@@ -285,7 +285,7 @@ export default function TasksPage() {
                   <div className="border-t border-border/40 my-1" />
                   <p className="px-3 py-1 text-xs font-medium text-muted-foreground uppercase tracking-wide">Status</p>
                   {STATUSES.map(opt => <button key={opt} onClick={() => setFilterStatus(opt)} className={`filter-item ${filterStatus === opt ? 'filter-item-active' : 'filter-item-inactive'}`}>{opt}{filterStatus === opt && <Check size={13} />}</button>)}
-                  {hasFilters && <div className="border-t border-border/40 px-3 pt-2 pb-1"><button onClick={() => { setFilterProject('All'); setFilterStatus('All'); }} className="text-xs text-muted-foreground hover:text-foreground">Clear Filters</button></div>}
+                  {hasFilters && <div className="border-t border-border/40 px-3 pt-2 pb-1"><button onClick={() => { setFilterProject('All'); setFilterStatus('All'); }} className="text-xs text-muted-foreground hover:text-foreground flex items-center gap-1.5"><X size={12} />Clear Filters</button></div>}
                 </div>
               </>
             )}
@@ -293,7 +293,7 @@ export default function TasksPage() {
 
           {/* Sort */}
           <div className="relative">
-            <button onClick={() => { setShowSortMenu(!showSortMenu); setShowFilterMenu(false); }} title="Sort"
+            <button onClick={() => { setShowSortMenu(!showSortMenu); setShowFilterMenu(false); }}
               className="toolbar-icon-btn">
               <ArrowUpDown size={18} />
             </button>
@@ -316,10 +316,10 @@ export default function TasksPage() {
 
           {/* View toggle */}
           <div className="flex border border-border rounded-lg overflow-hidden">
-            <button onClick={() => setView('table')} className={`w-8 h-8 flex items-center justify-center transition-colors ${view === 'table' ? 'bg-muted text-foreground' : 'text-muted-foreground hover:bg-muted/50'}`} title="Table">
+            <button onClick={() => setView('table')} className={`w-8 h-8 flex items-center justify-center transition-colors ${view === 'table' ? 'bg-muted text-foreground' : 'text-muted-foreground hover:bg-muted/50'}`}>
               <Rows3 size={16} />
             </button>
-            <button onClick={() => setView('kanban')} className={`w-8 h-8 flex items-center justify-center border-l border-border transition-colors ${view === 'kanban' ? 'bg-muted text-foreground' : 'text-muted-foreground hover:bg-muted/50'}`} title="Kanban">
+            <button onClick={() => setView('kanban')} className={`w-8 h-8 flex items-center justify-center border-l border-border transition-colors ${view === 'kanban' ? 'bg-muted text-foreground' : 'text-muted-foreground hover:bg-muted/50'}`}>
               <KanbanSquare size={16} />
             </button>
           </div>

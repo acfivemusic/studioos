@@ -347,7 +347,6 @@ export function ScheduleBuilder({ schedule, onChange }: ScheduleBuilderProps) {
         <div className="relative">
           <button
             onClick={() => setShowSectionMenu(!showSectionMenu)}
-            title="View Section"
             className={`relative toolbar-icon-btn ${sectionFilter !== 'all' ? 'toolbar-icon-btn-active' : ''}`}
           >
             <Filter size={18} />
@@ -383,7 +382,6 @@ export function ScheduleBuilder({ schedule, onChange }: ScheduleBuilderProps) {
         <div className="relative">
           <button
             onClick={() => setShowSortMenu(!showSortMenu)}
-            title="Sort"
             className="toolbar-icon-btn"
           >
             <ArrowUpDown size={18} />
@@ -455,7 +453,6 @@ export function ScheduleBuilder({ schedule, onChange }: ScheduleBuilderProps) {
         {/* Export PDF icon-only */}
         <button
           onClick={() => setShowExportModal(true)}
-          title="Export PDF"
           className="toolbar-icon-btn"
         >
           <FileImage size={18} />

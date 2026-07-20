@@ -12,7 +12,6 @@ export function NotificationCenter() {
     <Link
       href="/notifications"
       className="relative w-9 h-9 flex items-center justify-center rounded-lg border border-border bg-card hover:bg-muted/50 transition-colors"
-      title="Notifications"
     >
       <Bell size={18} className="text-foreground" />
       {hasUnread && (

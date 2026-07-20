@@ -2,7 +2,7 @@ import { DynamicIcon } from '@/lib/icons';
 
 interface EmptyStateProps {
   icon: string;
-  title: string;
+  title?: string;
   description: string;
   action?: {
     label: string;
@@ -16,7 +16,7 @@ export function EmptyState({ icon, title, description, action }: EmptyStateProps
       <div className="w-14 h-14 rounded-2xl bg-muted flex items-center justify-center mb-4">
         <DynamicIcon name={icon} size={28} className="text-muted-foreground" />
       </div>
-      <h3 className="font-medium text-base mb-1">{title}</h3>
+      {title && <h3 className="font-medium text-base mb-1">{title}</h3>}
       <p className="text-sm text-muted-foreground max-w-xs">{description}</p>
       {action && (
         <button

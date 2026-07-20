@@ -57,7 +57,6 @@ export function EditProjectModal({ project, onClose, onSave }: EditProjectModalP
 
   return (
     <SidePanel
-      title="Edit Project"
       subtitle={project.name}
       onClose={onClose}
       footer={

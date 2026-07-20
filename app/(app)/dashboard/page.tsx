@@ -185,7 +185,7 @@ export default function DashboardPage() {
       {showNewProject && <NewProjectModal onClose={() => setShowNewProject(false)} onSave={handleNewProject} />}
 
       {showAddClient && (
-        <SidePanel title="Add Client" onClose={() => setShowAddClient(false)} footer={
+        <SidePanel onClose={() => setShowAddClient(false)} footer={
           <><div /><div className="flex gap-2">
             <button onClick={() => setShowAddClient(false)} className="notion-button border border-border">Cancel</button>
             <button onClick={handleAddClient} className="btn-primary">Add Client</button>
@@ -213,7 +213,7 @@ export default function DashboardPage() {
       )}
 
       {showAddProduct && (
-        <SidePanel title="Add Product" onClose={() => setShowAddProduct(false)} footer={
+        <SidePanel onClose={() => setShowAddProduct(false)} footer={
           <><div /><div className="flex gap-2">
             <button onClick={() => setShowAddProduct(false)} className="notion-button border border-border">Cancel</button>
             <button onClick={handleAddProduct} className="btn-primary">Add Product</button>
@@ -243,7 +243,7 @@ export default function DashboardPage() {
       )}
 
       {showAddSupplier && (
-        <SidePanel title="Add Supplier" onClose={() => setShowAddSupplier(false)} footer={
+        <SidePanel onClose={() => setShowAddSupplier(false)} footer={
           <><div /><div className="flex gap-2">
             <button onClick={() => setShowAddSupplier(false)} className="notion-button border border-border">Cancel</button>
             <button onClick={handleAddSupplier} className="btn-primary">Add Supplier</button>
@@ -277,7 +277,7 @@ export default function DashboardPage() {
       )}
 
       {showAllActivity && (
-        <SidePanel title="Recent Activity" subtitle="Last 30 days" onClose={() => setShowAllActivity(false)}>
+        <SidePanel subtitle="Last 30 days" onClose={() => setShowAllActivity(false)}>
           <div className="px-6 py-5">
             {last30DaysActivity.length === 0 ? (
               <p className="text-sm text-muted-foreground text-center py-8">No activity in the last 30 days</p>

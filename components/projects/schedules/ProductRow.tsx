@@ -134,7 +134,6 @@ export function ProductRow({
           />
           <span
             className="text-muted-foreground cursor-grab active:cursor-grabbing inline-flex"
-            title="Drag to reorder"
             {...dragHandleProps}
           >
             <GripVertical size={14} />
@@ -142,7 +141,6 @@ export function ProductRow({
           <button
             onClick={onAddBelow}
             className="hover:text-foreground text-muted-foreground transition-colors"
-            title="Add product below"
           >
             <Plus size={14} />
           </button>
@@ -166,7 +164,6 @@ export function ProductRow({
             <button
               onClick={() => setShowDetails(true)}
               className="opacity-0 group-hover:opacity-100 hover:text-foreground text-muted-foreground transition-all"
-              title="Open details"
             >
               <ExternalLink size={11} />
             </button>

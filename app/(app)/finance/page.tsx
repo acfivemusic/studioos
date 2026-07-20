@@ -1,7 +1,10 @@
 'use client';
 
 import { useState, useMemo, useEffect, useRef } from 'react';
-import { ChevronDown, Check, TrendingUp, FileText, CircleAlert as AlertCircle } from 'lucide-react';
+import { ChevronDown, Check, TrendingUp, FileText, CircleAlert as AlertCircle, X } from 'lucide-react';
+import { SidePanel } from '@/components/ui/SidePanel';
+import { SelectDropdown } from '@/components/projects/SelectDropdown';
+import { DatePicker } from '@/components/ui/DatePicker';
 
 function formatCurrency(amount: number): string {
   return `A$${amount.toLocaleString('en-AU')}`;
@@ -63,6 +66,10 @@ export default function FinancePage() {
   const [showMonthMenu, setShowMonthMenu] = useState(false);
   const [statusFilter, setStatusFilter] = useState('All');
   const monthMenuRef = useRef<HTMLDivElement>(null);
+  const [invoices, setInvoices] = useState(allInvoices);
+  const [editingInvoice, setEditingInvoice] = useState<typeof allInvoices[0] | null>(null);
+  const [showNewPanel, setShowNewPanel] = useState(false);
+  const [newInvoice, setNewInvoice] = useState({ id: '', client: '', project: '', amount: 0, outstanding: 0, status: 'Draft', issued: new Date(), due: new Date() });
 
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
@@ -74,12 +81,12 @@ export default function FinancePage() {
 
   const dateRange = getDateRange(monthFilter);
 
-  const invoices = useMemo(() => {
-    return allInvoices.filter((inv) => {
+  const filteredInvoices = useMemo(() => {
+    return invoices.filter((inv) => {
       if (statusFilter !== 'All' && inv.status !== statusFilter) return false;
       return inv.issued >= dateRange.start && inv.issued <= dateRange.end;
     });
-  }, [statusFilter, dateRange]);
+  }, [invoices, statusFilter, dateRange]);
 
   const totalRevenue = allInvoices.filter(i => i.status === 'Paid').reduce((s, i) => s + i.amount, 0);
   const paidCount = allInvoices.filter(i => i.status === 'Paid').length;
@@ -95,7 +102,7 @@ export default function FinancePage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-semibold">Invoices</h1>
-        <button className="btn-primary">Create Invoice</button>
+        <button onClick={() => setShowNewPanel(true)} className="btn-primary">Create Invoice</button>
       </div>
 
       {/* KPI Cards — 3 columns */}
@@ -193,8 +200,8 @@ export default function FinancePage() {
             </tr>
           </thead>
           <tbody>
-            {invoices.map((invoice) => (
-              <tr key={invoice.id} className="hover:bg-muted/20 cursor-pointer border-b border-border/50 last:border-b-0 transition-colors">
+            {filteredInvoices.map((invoice) => (
+              <tr key={invoice.id} onClick={() => setEditingInvoice(invoice)} className="hover:bg-muted/20 cursor-pointer border-b border-border/50 last:border-b-0 transition-colors">
                 <td className="table-cell font-medium">{invoice.id}</td>
                 <td className="table-cell text-muted-foreground">{invoice.project}</td>
                 <td className="table-cell text-muted-foreground">{invoice.client}</td>
@@ -209,7 +216,7 @@ export default function FinancePage() {
                 </td>
               </tr>
             ))}
-            {invoices.length === 0 && (
+            {filteredInvoices.length === 0 && (
               <tr>
                 <td colSpan={8} className="table-cell text-center text-muted-foreground py-12">
                   No invoices match the selected filters.
@@ -219,6 +226,141 @@ export default function FinancePage() {
           </tbody>
         </table>
       </div>
+      {/* Edit Invoice Side Panel */}
+      {editingInvoice && (
+        <SidePanel
+          title="Edit Invoice"
+          subtitle={editingInvoice.id}
+          onClose={() => setEditingInvoice(null)}
+          footer={
+            <>
+              <div />
+              <div className="flex gap-2">
+                <button onClick={() => setEditingInvoice(null)} className="notion-button border border-border">Cancel</button>
+                <button
+                  onClick={() => {
+                    setInvoices(prev => prev.map(i => i.id === editingInvoice.id ? editingInvoice : i));
+                    setEditingInvoice(null);
+                  }}
+                  className="btn-primary"
+                >
+                  Save
+                </button>
+              </div>
+            </>
+          }
+        >
+          <div className="px-6 py-5 space-y-4">
+            <div>
+              <label className="block text-xs text-muted-foreground mb-1.5">Invoice ID</label>
+              <input value={editingInvoice.id} onChange={e => setEditingInvoice({ ...editingInvoice, id: e.target.value })} className="modal-input" />
+            </div>
+            <div>
+              <label className="block text-xs text-muted-foreground mb-1.5">Client</label>
+              <input value={editingInvoice.client} onChange={e => setEditingInvoice({ ...editingInvoice, client: e.target.value })} className="modal-input" />
+            </div>
+            <div>
+              <label className="block text-xs text-muted-foreground mb-1.5">Project</label>
+              <input value={editingInvoice.project} onChange={e => setEditingInvoice({ ...editingInvoice, project: e.target.value })} className="modal-input" />
+            </div>
+            <div>
+              <label className="block text-xs text-muted-foreground mb-1.5">Status</label>
+              <SelectDropdown
+                value={editingInvoice.status}
+                options={['Draft', 'Pending', 'Paid', 'Overdue', 'Upcoming']}
+                onChange={(v) => setEditingInvoice({ ...editingInvoice, status: v })}
+              />
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="block text-xs text-muted-foreground mb-1.5">Amount</label>
+                <input type="number" value={editingInvoice.amount} onChange={e => setEditingInvoice({ ...editingInvoice, amount: parseFloat(e.target.value) || 0 })} className="modal-input" />
+              </div>
+              <div>
+                <label className="block text-xs text-muted-foreground mb-1.5">Outstanding</label>
+                <input type="number" value={editingInvoice.outstanding} onChange={e => setEditingInvoice({ ...editingInvoice, outstanding: parseFloat(e.target.value) || 0 })} className="modal-input" />
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="block text-xs text-muted-foreground mb-1.5">Issued Date</label>
+                <DatePicker value={formatDate(editingInvoice.issued)} onChange={(v) => { const d = new Date(v); if (!isNaN(d.getTime())) setEditingInvoice({ ...editingInvoice, issued: d }); }} />
+              </div>
+              <div>
+                <label className="block text-xs text-muted-foreground mb-1.5">Due Date</label>
+                <DatePicker value={formatDate(editingInvoice.due)} onChange={(v) => { const d = new Date(v); if (!isNaN(d.getTime())) setEditingInvoice({ ...editingInvoice, due: d }); }} />
+              </div>
+            </div>
+          </div>
+        </SidePanel>
+      )}
+
+      {/* New Invoice Side Panel */}
+      {showNewPanel && (
+        <SidePanel
+          title="New Invoice"
+          onClose={() => setShowNewPanel(false)}
+          footer={
+            <>
+              <div />
+              <div className="flex gap-2">
+                <button onClick={() => setShowNewPanel(false)} className="notion-button border border-border">Cancel</button>
+                <button
+                  onClick={() => {
+                    if (!newInvoice.client) return;
+                    const inv = { ...newInvoice, id: `INV-${String(invoices.length + 1).padStart(3, '0')}` };
+                    setInvoices(prev => [...prev, inv]);
+                    setShowNewPanel(false);
+                    setNewInvoice({ id: '', client: '', project: '', amount: 0, outstanding: 0, status: 'Draft', issued: new Date(), due: new Date() });
+                  }}
+                  className="btn-primary"
+                >
+                  Create Invoice
+                </button>
+              </div>
+            </>
+          }
+        >
+          <div className="px-6 py-5 space-y-4">
+            <div>
+              <label className="block text-xs text-muted-foreground mb-1.5">Client *</label>
+              <input value={newInvoice.client} onChange={e => setNewInvoice({ ...newInvoice, client: e.target.value })} placeholder="Client name" className="modal-input" />
+            </div>
+            <div>
+              <label className="block text-xs text-muted-foreground mb-1.5">Project</label>
+              <input value={newInvoice.project} onChange={e => setNewInvoice({ ...newInvoice, project: e.target.value })} placeholder="Project name" className="modal-input" />
+            </div>
+            <div>
+              <label className="block text-xs text-muted-foreground mb-1.5">Status</label>
+              <SelectDropdown
+                value={newInvoice.status}
+                options={['Draft', 'Pending', 'Paid', 'Overdue', 'Upcoming']}
+                onChange={(v) => setNewInvoice({ ...newInvoice, status: v })}
+              />
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="block text-xs text-muted-foreground mb-1.5">Amount</label>
+                <input type="number" value={newInvoice.amount} onChange={e => setNewInvoice({ ...newInvoice, amount: parseFloat(e.target.value) || 0 })} className="modal-input" />
+              </div>
+              <div>
+                <label className="block text-xs text-muted-foreground mb-1.5">Outstanding</label>
+                <input type="number" value={newInvoice.outstanding} onChange={e => setNewInvoice({ ...newInvoice, outstanding: parseFloat(e.target.value) || 0 })} className="modal-input" />
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="block text-xs text-muted-foreground mb-1.5">Issued Date</label>
+                <DatePicker value={formatDate(newInvoice.issued)} onChange={(v) => { const d = new Date(v); if (!isNaN(d.getTime())) setNewInvoice({ ...newInvoice, issued: d }); }} />
+              </div>
+              <div>
+                <label className="block text-xs text-muted-foreground mb-1.5">Due Date</label>
+                <DatePicker value={formatDate(newInvoice.due)} onChange={(v) => { const d = new Date(v); if (!isNaN(d.getTime())) setNewInvoice({ ...newInvoice, due: d }); }} />
+              </div>
+            </div>
+          </div>
+        </SidePanel>
+      )}
     </div>
   );
 }

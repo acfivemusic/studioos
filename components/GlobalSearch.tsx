@@ -77,7 +77,7 @@ export function GlobalSearch({ onClose }: { onClose: () => void }) {
   }, [results]);
 
   return (
-    <SidePanel title="Search" onClose={onClose}>
+    <SidePanel onClose={onClose}>
       <div className="px-6 py-5">
         {/* Search Bar */}
         <div className="relative mb-5">

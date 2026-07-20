@@ -165,12 +165,12 @@ export function ScheduleSection({
           {/* Section actions — hover only */}
           <div className={`flex items-center gap-1 ml-auto transition-opacity duration-150 ${hovered ? 'opacity-100' : 'opacity-0'}`}>
             {canMoveUp && (
-              <button onClick={onMoveUp} className="p-1 text-muted-foreground hover:text-foreground transition-colors" title="Move up">
+              <button onClick={onMoveUp} className="p-1 text-muted-foreground hover:text-foreground transition-colors">
                 <ArrowUp size={15} />
               </button>
             )}
             {canMoveDown && (
-              <button onClick={onMoveDown} className="p-1 text-muted-foreground hover:text-foreground transition-colors" title="Move down">
+              <button onClick={onMoveDown} className="p-1 text-muted-foreground hover:text-foreground transition-colors">
                 <ArrowDown size={15} />
               </button>
             )}

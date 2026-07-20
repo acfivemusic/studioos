@@ -83,7 +83,7 @@ export default function LeadsPage() {
 
           {/* Filter */}
           <div className="relative">
-            <button onClick={() => { setShowFilterMenu(!showFilterMenu); setShowSortMenu(false); }} title="Filter"
+            <button onClick={() => { setShowFilterMenu(!showFilterMenu); setShowSortMenu(false); }}
               className={`relative toolbar-icon-btn ${hasFilters ? 'toolbar-icon-btn-active' : ''}`}>
               <Filter size={18} />
             </button>
@@ -114,7 +114,7 @@ export default function LeadsPage() {
 
           {/* Sort */}
           <div className="relative">
-            <button onClick={() => { setShowSortMenu(!showSortMenu); setShowFilterMenu(false); }} title="Sort"
+            <button onClick={() => { setShowSortMenu(!showSortMenu); setShowFilterMenu(false); }}
               className="toolbar-icon-btn">
               <ArrowUpDown size={18} />
             </button>
@@ -143,10 +143,10 @@ export default function LeadsPage() {
 
           {/* View toggle */}
           <div className="flex border border-border rounded-lg overflow-hidden">
-            <button onClick={() => setView('card')} className={`w-8 h-8 flex items-center justify-center transition-colors ${view === 'card' ? 'view-toggle-active' : 'text-muted-foreground hover:bg-muted/50'}`} title="Cards">
+            <button onClick={() => setView('card')} className={`w-8 h-8 flex items-center justify-center transition-colors ${view === 'card' ? 'view-toggle-active' : 'text-muted-foreground hover:bg-muted/50'}`}>
               <LayoutGrid size={18} />
             </button>
-            <button onClick={() => setView('table')} className={`w-8 h-8 flex items-center justify-center border-l border-border transition-colors ${view === 'table' ? 'view-toggle-active' : 'text-muted-foreground hover:bg-muted/50'}`} title="Table">
+            <button onClick={() => setView('table')} className={`w-8 h-8 flex items-center justify-center border-l border-border transition-colors ${view === 'table' ? 'view-toggle-active' : 'text-muted-foreground hover:bg-muted/50'}`}>
               <Rows3 size={18} />
             </button>
           </div>
@@ -158,7 +158,7 @@ export default function LeadsPage() {
 
         {/* Content */}
         {filtered.length === 0 ? (
-          <EmptyState icon="person_search" title="No leads found"
+          <EmptyState icon="person_search"
             description={search || hasFilters ? 'Try adjusting your search or filters.' : 'Add your first lead to get started.'}
             action={{ label: '+ New Lead', onClick: () => setShowModal(true) }} />
         ) : view === 'card' ? (

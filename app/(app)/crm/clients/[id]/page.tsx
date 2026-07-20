@@ -92,7 +92,7 @@ export default function ClientDetailPage({ params }: Props) {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
         {/* Left column */}
         <div className="lg:col-span-1 space-y-4">
-          <DetailSection title="Overview">
+          <DetailSection>
             <div className="space-y-3">
               <DetailField label="Status" value={<ClientStatusBadge status={client.status} />} />
               <DetailField label="Client Since" value={client.clientSince} />
@@ -102,7 +102,7 @@ export default function ClientDetailPage({ params }: Props) {
             </div>
           </DetailSection>
 
-          <DetailSection title="Contact Details">
+          <DetailSection>
             <div className="space-y-3">
               <a href={`mailto:${client.email}`} className="flex items-center gap-2 text-sm hover:text-foreground transition-colors">
                 <Mail size={16} className="text-muted-foreground" />
@@ -119,7 +119,7 @@ export default function ClientDetailPage({ params }: Props) {
             </div>
           </DetailSection>
 
-          <DetailSection title="Contacts" action={{ label: 'Add', icon: undefined, onClick: () => {} }}>
+          <DetailSection action={{ label: 'Add', icon: undefined, onClick: () => {} }}>
             <div className="space-y-2">
               {client.contacts.map((contact) => (
                 <div key={contact.id} className="py-2 border-b border-border/50 last:border-b-0">
@@ -137,7 +137,7 @@ export default function ClientDetailPage({ params }: Props) {
             </div>
           </DetailSection>
 
-          <DetailSection title="Billing Information" action={{ label: 'Edit', icon: undefined, onClick: () => {} }}>
+          <DetailSection action={{ label: 'Edit', icon: undefined, onClick: () => {} }}>
             <div className="text-sm text-muted-foreground">
               {client.billingAddress ? (
                 <p>{client.billingAddress}</p>
@@ -151,7 +151,7 @@ export default function ClientDetailPage({ params }: Props) {
 
         {/* Right columns */}
         <div className="lg:col-span-2 space-y-4">
-          <DetailSection title="Projects" action={{ label: 'Create Project', icon: undefined, onClick: () => {} }}>
+          <DetailSection action={{ label: 'Create Project', icon: undefined, onClick: () => {} }}>
             {client.projects.length === 0 ? (
               <p className="text-sm text-muted-foreground text-center py-4">No projects yet.</p>
             ) : (
@@ -184,11 +184,11 @@ export default function ClientDetailPage({ params }: Props) {
             )}
           </DetailSection>
 
-          <DetailSection title="Notes">
+          <DetailSection>
             <NotesPanel notes={client.notes} />
           </DetailSection>
 
-          <DetailSection title="Timeline">
+          <DetailSection>
             <Timeline events={[...client.timeline].reverse()} />
           </DetailSection>
         </div>

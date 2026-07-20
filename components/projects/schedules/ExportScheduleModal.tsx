@@ -130,7 +130,6 @@ export function ExportScheduleModal({
 
   return (
     <SidePanel
-      title="Export Schedule"
       subtitle={schedule.name}
       onClose={onClose}
       footer={

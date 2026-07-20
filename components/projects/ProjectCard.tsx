@@ -59,7 +59,6 @@ export function ProjectCard({ project, onEdit, onDuplicate, onArchive, onDelete 
             <button
               onClick={(e) => { stop(e); setShowMenu(!showMenu); }}
               className="w-7 h-7 rounded-lg flex items-center justify-center hover:bg-muted transition-colors text-muted-foreground hover:text-foreground"
-              title="More actions"
             >
               <MoreHorizontal size={16} />
             </button>

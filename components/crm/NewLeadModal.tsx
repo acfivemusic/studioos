@@ -65,7 +65,6 @@ export function NewLeadModal({ onClose, onAdd }: NewLeadModalProps) {
 
   return (
     <SidePanel
-      title="New Lead"
       onClose={onClose}
       footer={
         <>

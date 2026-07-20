@@ -106,11 +106,11 @@ export function ProductSidePanel({
             <StatusDropdown value={form.status} onChange={(s) => set('status', s)} />
             {(hasPrev || hasNext) && (
               <div className="flex items-center border border-border rounded-lg overflow-hidden">
-                <button onClick={onNavigatePrev} disabled={!hasPrev} className="p-1.5 hover:bg-muted transition-colors disabled:opacity-30" title="Previous">
+                <button onClick={onNavigatePrev} disabled={!hasPrev} className="p-1.5 hover:bg-muted transition-colors disabled:opacity-30">
                   <ChevronUp size={16} />
                 </button>
                 <div className="w-px h-4 bg-border" />
-                <button onClick={onNavigateNext} disabled={!hasNext} className="p-1.5 hover:bg-muted transition-colors disabled:opacity-30" title="Next">
+                <button onClick={onNavigateNext} disabled={!hasNext} className="p-1.5 hover:bg-muted transition-colors disabled:opacity-30">
                   <ChevronDown size={16} />
                 </button>
               </div>

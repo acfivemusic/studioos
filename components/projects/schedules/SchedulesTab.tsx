@@ -67,7 +67,7 @@ export function SchedulesTab({ projectId }: SchedulesTabProps) {
     return (
       <div>
         {/* Navigation bar — All button left, matches Projects toolbar style */}
-        <div className="flex items-center gap-2 px-4 py-3 border-b border-border/50">
+        <div className="flex items-center gap-2 px-4 py-3">
           <div className="flex border border-border rounded-lg overflow-hidden">
             <button
               onClick={() => setActiveScheduleId(null)}
@@ -110,7 +110,6 @@ export function SchedulesTab({ projectId }: SchedulesTabProps) {
     <>
       {showNewPanel && (
         <SidePanel
-          title="New Schedule"
           onClose={() => setShowNewPanel(false)}
           footer={
             <>
@@ -161,8 +160,8 @@ export function SchedulesTab({ projectId }: SchedulesTabProps) {
         </SidePanel>
       )}
 
-      {/* Toolbar — left: All tab, right: search/sort/export/preview/new */}
-      <div className="flex items-center gap-2 px-4 py-3 border-b border-border/50">
+      {/* Toolbar — left: All tab, right: search/sort/new */}
+      <div className="flex items-center gap-2 px-4 py-3">
         {/* Left: "All" tab */}
         <div className="flex border border-border rounded-lg overflow-hidden">
           <button className="h-8 px-3 text-sm view-toggle-active">
@@ -188,7 +187,6 @@ export function SchedulesTab({ projectId }: SchedulesTabProps) {
         <div className="relative">
           <button
             onClick={() => setShowSortMenu(!showSortMenu)}
-            title="Sort"
             className="toolbar-icon-btn"
           >
             <ArrowUpDown size={18} />

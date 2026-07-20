@@ -60,7 +60,6 @@ export function NewProjectModal({ onClose, onSave }: NewProjectModalProps) {
   return (
     <>
       <SidePanel
-        title="New Project"
         onClose={onClose}
         footer={
           <>

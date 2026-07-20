@@ -214,7 +214,6 @@ export default function ProductsPage() {
       return (
         <EmptyState
           icon="inventory_2"
-          title="No products found"
           description={search ? 'Try adjusting your search.' : 'Add your first product to the library.'}
         />
       );
@@ -249,7 +248,6 @@ export default function ProductsPage() {
       return (
         <EmptyState
           icon="inventory_2"
-          title="No products in this collection"
           description="Add a product to this collection."
         />
       );
@@ -320,7 +318,7 @@ export default function ProductsPage() {
     <>
       {/* ── Add Product side panel ── */}
       {addType === 'product' && (
-        <SidePanel title="Add Product" onClose={closePanel} footer={
+        <SidePanel onClose={closePanel} footer={
           <><div /><div className="flex gap-2">
             <button onClick={closePanel} className="notion-button border border-border">Cancel</button>
             <button onClick={handleAddProduct} className="btn-primary">Add Product</button>
@@ -361,7 +359,7 @@ export default function ProductsPage() {
 
       {/* ── Product from URL side panel ── */}
       {addType === 'url' && (
-        <SidePanel title="Add Library Product from URL" onClose={closePanel} footer={
+        <SidePanel onClose={closePanel} footer={
           <><div /><div className="flex gap-2">
             <button onClick={closePanel} className="notion-button border border-border">Cancel</button>
             {urlFetched ? (
@@ -456,7 +454,7 @@ export default function ProductsPage() {
 
       {/* ── Add Collection side panel ── */}
       {addType === 'collection' && (
-        <SidePanel title="Add Collection" onClose={closePanel} footer={
+        <SidePanel onClose={closePanel} footer={
           <><div /><div className="flex gap-2">
             <button onClick={closePanel} className="notion-button border border-border">Cancel</button>
             <button onClick={handleAddCollection} className="btn-primary">Add Collection</button>
@@ -502,10 +500,10 @@ export default function ProductsPage() {
 
           {!showCollectionCards && (
             <div className="flex border border-border rounded-lg overflow-hidden">
-              <button onClick={() => setView('grid')} className={`w-8 h-8 flex items-center justify-center transition-colors ${view === 'grid' ? 'bg-foreground text-background' : 'text-muted-foreground hover:bg-muted/50'}`} title="Grid">
+              <button onClick={() => setView('grid')} className={`w-8 h-8 flex items-center justify-center transition-colors ${view === 'grid' ? 'bg-foreground text-background' : 'text-muted-foreground hover:bg-muted/50'}`}>
                 <LayoutGrid size={18} />
               </button>
-              <button onClick={() => setView('table')} className={`w-8 h-8 flex items-center justify-center border-l border-border transition-colors ${view === 'table' ? 'bg-foreground text-background' : 'text-muted-foreground hover:bg-muted/50'}`} title="Table">
+              <button onClick={() => setView('table')} className={`w-8 h-8 flex items-center justify-center border-l border-border transition-colors ${view === 'table' ? 'bg-foreground text-background' : 'text-muted-foreground hover:bg-muted/50'}`}>
                 <Rows3 size={18} />
               </button>
             </div>
@@ -549,7 +547,7 @@ export default function ProductsPage() {
         ) : (
           // Search results view
           filtered.length === 0 ? (
-            <EmptyState icon="inventory_2" title="No products found" description="Try adjusting your search." />
+            <EmptyState icon="inventory_2" description="Try adjusting your search." />
           ) : view === 'grid' ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
               {filtered.map(product => (

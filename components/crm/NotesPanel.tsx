@@ -89,7 +89,6 @@ export function NotesPanel({ notes: initialNotes, onNotesChange }: NotesPanelPro
                   <button
                     onClick={() => setDeleteTarget(note)}
                     className="opacity-0 group-hover:opacity-100 p-1 hover:bg-muted rounded transition-colors"
-                    title="Delete note"
                   >
                     <Trash2 size={16} className="text-muted-foreground hover:text-red-500" />
                   </button>

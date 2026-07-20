@@ -88,7 +88,7 @@ export default function NotificationsPage() {
 
               {/* Mark read — removes notification */}
               {!n.read && (
-                <button onClick={() => markAsRead(n.id)} title="Mark as read"
+                <button onClick={() => markAsRead(n.id)}
                   className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground px-2 py-1 rounded-lg hover:bg-muted transition-colors whitespace-nowrap flex-shrink-0">
                   <CheckCheck size={14} />
                   Mark read

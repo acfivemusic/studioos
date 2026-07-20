@@ -60,7 +60,6 @@ export default function VendorLibraryPage() {
         <div className="relative">
           <button
             onClick={() => setShowFilterMenu(!showFilterMenu)}
-            title="Filter by category"
             className={`relative toolbar-icon-btn ${categoryFilter !== 'All Vendors' ? 'toolbar-icon-btn-active' : ''}`}
           >
             <Filter size={18} />

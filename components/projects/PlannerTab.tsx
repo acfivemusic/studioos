@@ -42,7 +42,6 @@ function TaskMenu({ task, onEdit, onDelete }: TaskMenuProps) {
       <button
         onClick={(e) => { e.stopPropagation(); setOpen(!open); }}
         className="w-6 h-6 rounded flex items-center justify-center hover:bg-muted/80 transition-colors text-muted-foreground hover:text-foreground"
-        title="More"
       >
         <MoreHorizontal size={14} />
       </button>
@@ -101,7 +100,6 @@ function EditTaskPanel({ task, project, onClose, onSave }: EditTaskPanelProps) {
 
   return (
     <SidePanel
-      title="Edit Task"
       subtitle={task.title}
       onClose={onClose}
       width="min(40vw, 520px)"
@@ -295,7 +293,7 @@ export function PlannerTab({ project, onUpdateTasks }: PlannerTabProps) {
       title: addingTask.title.trim(),
       completed: addingTask.status === 'Done',
       status: addingTask.status,
-      phase: project.currentPhase,
+      phase: (addingTask as any).phase || project.currentPhase,
     };
     onUpdateTasks([...tasks, newTask]);
     setAddingTask(null);
@@ -446,16 +444,15 @@ export function PlannerTab({ project, onUpdateTasks }: PlannerTabProps) {
                 <div className="flex items-center gap-2">
                   <span className="text-xs text-muted-foreground">{items.length} tasks</span>
                   <button
-                    onClick={() => setAddingTask(addingTask?.status === 'To do' ? null : { status: 'To do', title: '' })}
+                    onClick={() => setAddingTask(addingTask?.status === 'To do' ? null : { status: 'To do', title: '', phase } as any)}
                     className="flex items-center gap-1 h-6 px-2 rounded text-xs font-medium hover:bg-muted transition-colors text-muted-foreground hover:text-foreground"
-                    title="Add task"
                   >
                     <Plus size={14} />
                     Add New Task
                   </button>
                 </div>
               </div>
-              {items.length === 0 ? (
+              {items.length === 0 && !addingTask ? (
                 <p className="text-xs text-muted-foreground/60 text-center py-4">No tasks in this phase</p>
               ) : (
                 <div className="divide-y divide-border/40">
@@ -475,6 +472,26 @@ export function PlannerTab({ project, onUpdateTasks }: PlannerTabProps) {
                       />
                     </div>
                   ))}
+                  {addingTask && (
+                    <div className="px-4 py-3">
+                      <input
+                        ref={newTaskInputRef}
+                        value={addingTask.title}
+                        onChange={e => setAddingTask({ ...addingTask, title: e.target.value })}
+                        onKeyDown={e => { if (e.key === 'Enter') commitNewTask(); if (e.key === 'Escape') setAddingTask(null); }}
+                        placeholder="Task title..."
+                        className="w-full text-sm outline-none bg-transparent placeholder:text-muted-foreground/60 border border-border rounded-lg px-3 py-2"
+                      />
+                      <div className="flex items-center gap-1.5 mt-2">
+                        <button onClick={commitNewTask} className="text-xs px-2 py-1 rounded-md bg-foreground text-background font-medium hover:bg-foreground/90 transition-colors">
+                          Add
+                        </button>
+                        <button onClick={() => setAddingTask(null)} className="text-xs px-2 py-1 rounded-md hover:bg-muted transition-colors text-muted-foreground">
+                          Cancel
+                        </button>
+                      </div>
+                    </div>
+                  )}
                 </div>
               )}
             </div>
@@ -526,52 +543,44 @@ export function PlannerTab({ project, onUpdateTasks }: PlannerTabProps) {
           />
         </div>
 
-        {/* Filter — icon only, matches dashboard FilterDropdown styling */}
+        {/* Filter — icon only, matches projects page styling */}
         <div className="relative" ref={filterRef}>
           <button
             onClick={() => setShowFilter(!showFilter)}
-            className={`notion-button border gap-1.5 text-sm transition-colors ${
-              activeFilterCount > 0 ? 'border-foreground/30 bg-muted text-foreground' : 'border-border text-muted-foreground'
-            }`}
+            className={`relative toolbar-icon-btn ${activeFilterCount > 0 ? 'toolbar-icon-btn-active' : ''}`}
           >
-            <Filter size={15} />
-            {activeFilterCount > 0 && (
-              <span className="w-4 h-4 rounded-full bg-foreground text-background text-[10px] flex items-center justify-center">{activeFilterCount}</span>
-            )}
+            <Filter size={18} />
+            {activeFilterCount > 0 && <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 rounded-full bg-foreground" />}
           </button>
           {showFilter && (
             <>
               <div className="fixed inset-0 z-20" onClick={() => setShowFilter(false)} />
-              <div className="absolute right-0 mt-1 w-56 bg-popover border border-border rounded-xl shadow-lg z-30 py-1 overflow-hidden">
-                <div className="px-3 py-1.5">
-                  <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wide">Tasks Progress</p>
-                </div>
+              <div className="absolute right-0 mt-1 w-64 bg-popover border border-border rounded-xl shadow-lg z-30 py-2 overflow-hidden">
+                <p className="px-3 py-1 text-xs font-medium text-muted-foreground uppercase tracking-wide">Tasks Progress</p>
                 {STATUSES.map(s => (
                   <button
                     key={s}
                     onClick={() => setStatusFilter(prev => prev === s ? null : s)}
-                    className={`flex items-center justify-between w-full px-4 py-2 text-sm text-left hover:bg-muted transition-colors whitespace-nowrap ${statusFilter === s ? 'text-foreground font-medium' : 'text-muted-foreground'}`}
+                    className={`filter-item ${statusFilter === s ? 'filter-item-active' : 'filter-item-inactive'}`}
                   >
                     {s}
-                    {statusFilter === s && <Check size={14} />}
+                    {statusFilter === s && <Check size={13} />}
                   </button>
                 ))}
                 <div className="border-t border-border/40 my-1" />
-                <div className="px-3 py-1.5">
-                  <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wide">Project Phase</p>
-                </div>
+                <p className="px-3 py-1 text-xs font-medium text-muted-foreground uppercase tracking-wide">Project Phase</p>
                 {PROJECT_PHASES.map(p => (
                   <button
                     key={p}
                     onClick={() => setPhaseFilter(prev => prev === p ? null : p)}
-                    className={`flex items-center justify-between w-full px-4 py-2 text-sm text-left hover:bg-muted transition-colors whitespace-nowrap ${phaseFilter === p ? 'text-foreground font-medium' : 'text-muted-foreground'}`}
+                    className={`filter-item ${phaseFilter === p ? 'filter-item-active' : 'filter-item-inactive'}`}
                   >
                     {p}
-                    {phaseFilter === p && <Check size={14} />}
+                    {phaseFilter === p && <Check size={13} />}
                   </button>
                 ))}
                 {activeFilterCount > 0 && (
-                  <div className="border-t border-border/40 px-4 pt-2 pb-1">
+                  <div className="border-t border-border/40 px-3 pt-2 pb-1">
                     <button onClick={clearFilters} className="text-xs text-muted-foreground hover:text-foreground flex items-center gap-1.5">
                       <X size={12} />
                       Clear Filters

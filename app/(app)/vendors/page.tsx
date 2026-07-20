@@ -74,7 +74,7 @@ export default function VendorsPage() {
   return (
     <>
       {showAddPanel && (
-        <SidePanel title="Add Vendor" onClose={() => setShowAddPanel(false)} footer={
+        <SidePanel onClose={() => setShowAddPanel(false)} footer={
           <><div /><div className="flex gap-2">
             <button onClick={() => setShowAddPanel(false)} className="notion-button border border-border">Cancel</button>
             <button onClick={handleAddVendor} className="btn-primary">Add Vendor</button>
@@ -131,7 +131,7 @@ export default function VendorsPage() {
           </div>
 
           <div className="relative">
-            <button onClick={() => setShowFilterMenu(!showFilterMenu)} title="Filter by category"
+            <button onClick={() => setShowFilterMenu(!showFilterMenu)}
               className={`relative toolbar-icon-btn ${categoryFilter !== 'All Categories' ? 'toolbar-icon-btn-active' : ''}`}>
               <Filter size={18} />
             </button>
@@ -162,7 +162,7 @@ export default function VendorsPage() {
         </div>
 
         {filtered.length === 0 ? (
-          <EmptyState icon="store" title="No vendors found" description={search || categoryFilter !== 'All Categories' ? 'Try adjusting your search or filters.' : 'Add your first vendor.'} action={{ label: '+ Add Vendor', onClick: () => setShowAddPanel(true) }} />
+          <EmptyState icon="store" description={search || categoryFilter !== 'All Categories' ? 'Try adjusting your search or filters.' : 'Add your first vendor.'} action={{ label: '+ Add Vendor', onClick: () => setShowAddPanel(true) }} />
         ) : (
           <div className="bg-card border border-border rounded-xl overflow-hidden">
             <table className="w-full">

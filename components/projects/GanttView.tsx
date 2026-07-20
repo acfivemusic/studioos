@@ -68,7 +68,6 @@ function PhaseMenu({ phase, isFirst, isLast, canReorder, onEdit, onDelete, onMov
       <button
         onClick={(e) => { e.stopPropagation(); setOpen(!open); }}
         className="w-6 h-6 rounded flex items-center justify-center hover:bg-muted transition-colors text-muted-foreground hover:text-foreground"
-        title="More"
       >
         <MoreHorizontal size={15} />
       </button>
@@ -157,7 +156,9 @@ function DateDropdown({ value, onChange, label }: DateDropdownProps) {
   const handleChange = (formatted: string) => {
     if (!formatted) { onChange(''); return; }
     const d = new Date(formatted);
-    if (!isNaN(d.getTime())) onChange(toISO(d));
+    if (!isNaN(d.getTime())) {
+      onChange(toISO(d));
+    }
   };
   return (
     <DatePicker value={displayValue} onChange={handleChange} placeholder={label} />
@@ -183,7 +184,6 @@ function AddPhasePanel({ onClose, onSave }: AddPhasePanelProps) {
 
   return (
     <SidePanel
-      title="Add Phase"
       subtitle="Define a new timeline phase"
       onClose={onClose}
       width="min(40vw, 520px)"
@@ -253,7 +253,6 @@ function EditPhasePanel({ phase, onClose, onSave }: EditPhasePanelProps) {
 
   return (
     <SidePanel
-      title="Edit Phase"
       subtitle={phase.name}
       onClose={onClose}
       width="min(40vw, 520px)"
@@ -390,9 +389,27 @@ export function GanttView({ projectName, currentPhaseName, customPhases, onAddPh
         />
       )}
 
-      <div className="card-base overflow-hidden">
+      <div className="card-base">
         <div className="overflow-x-auto">
-          <div style={{ minWidth: STICKY_W + calendarW }}>
+          <div style={{ minWidth: STICKY_W + calendarW }} className="relative">
+
+            {/* Today line — extends from above the date row through all phase rows */}
+            {todayOffset >= 0 && todayOffset <= totalDays && (
+              <div
+                className="absolute top-0 bottom-0 z-20 pointer-events-none"
+                style={{ left: STICKY_W + todayX }}
+              >
+                <div className="w-px h-full bg-foreground/40" />
+                <div className="absolute top-0 -translate-x-1/2 -translate-y-full">
+                  <div className="flex flex-col items-center">
+                    <div className="bg-foreground text-background text-[10px] font-semibold px-2 py-0.5 rounded-full whitespace-nowrap shadow-sm">
+                      Today
+                    </div>
+                    <div className="w-2 h-2 bg-foreground rounded-full mt-0.5" />
+                  </div>
+                </div>
+              </div>
+            )}
 
             {/* ── Sticky header rows (project + months + weeks) ── */}
             {/* Row 0: Project header — sticky column + sticky top */}
@@ -441,25 +458,7 @@ export function GanttView({ projectName, currentPhaseName, customPhases, onAddPh
 
             {/* ── Phase rows ── */}
             <div className="relative">
-              {/* Today line with marker — spans all phase rows */}
-              {todayOffset >= 0 && todayOffset <= totalDays && (
-                <div
-                  className="absolute top-0 bottom-0 z-20 pointer-events-none"
-                  style={{ left: STICKY_W + todayX }}
-                >
-                  {/* Vertical line */}
-                  <div className="w-px h-full bg-foreground/40" />
-                  {/* Today marker tag at top */}
-                  <div className="absolute top-0 -translate-x-1/2 -translate-y-full">
-                    <div className="flex flex-col items-center">
-                      <div className="bg-foreground text-background text-[10px] font-semibold px-2 py-0.5 rounded-full whitespace-nowrap shadow-sm">
-                        Today
-                      </div>
-                      <div className="w-2 h-2 bg-foreground rounded-full mt-0.5" />
-                    </div>
-                  </div>
-                </div>
-              )}
+  
 
               {/* Alternating week background strips */}
               {weekHeaders.map((_, i) => (

@@ -144,14 +144,12 @@ export function ScheduleProductCard({
         <span
           {...dragHandleProps}
           className="text-muted-foreground/50 cursor-grab active:cursor-grabbing select-none hover:text-muted-foreground transition-colors"
-          title="Drag to reorder"
         >
           <GripVertical size={14} />
         </span>
         <button
           onClick={(e) => { e.stopPropagation(); onAddBelow(); }}
           className="text-muted-foreground/50 hover:text-foreground transition-colors"
-          title="Add product below"
         >
           <Plus size={13} />
         </button>
@@ -165,7 +163,6 @@ export function ScheduleProductCard({
           <div
             className="w-16 h-16 rounded-lg overflow-hidden bg-muted border border-border/50 cursor-pointer hover:opacity-90 transition-opacity flex-shrink-0"
             onClick={onOpenPanel}
-            title="Open details"
           >
             {product.imageUrl ? (
               <img src={product.imageUrl} alt={product.name} className="w-full h-full object-cover" />
@@ -211,7 +208,6 @@ export function ScheduleProductCard({
                 <button
                   onClick={(e) => { e.stopPropagation(); onOpenPanel(); }}
                   className="opacity-0 group-hover/card:opacity-100 transition-opacity flex-shrink-0"
-                  title="Open details"
                 >
                   <ExternalLink size={11} className="text-muted-foreground/50 hover:text-muted-foreground" />
                 </button>

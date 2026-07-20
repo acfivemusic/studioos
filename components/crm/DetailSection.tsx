@@ -1,7 +1,7 @@
 import { ReactNode } from 'react';
 
 interface DetailSectionProps {
-  title: string;
+  title?: string;
   children: ReactNode;
   action?: {
     label: string;
@@ -15,13 +15,12 @@ export function DetailSection({ title, children, action, editAction }: DetailSec
   return (
     <div className="bg-card border border-border rounded-xl p-5 card-base group relative">
       <div className="flex items-center justify-between mb-4">
-        <h3 className="font-medium text-sm">{title}</h3>
+        {title && <h3 className="font-medium text-sm">{title}</h3>}
         <div className="flex items-center gap-2">
           {editAction && (
             <button
               onClick={editAction}
               className="opacity-0 group-hover:opacity-100 flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-all"
-              title="Edit"
             >
               Edit
             </button>
