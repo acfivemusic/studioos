@@ -1,13 +1,12 @@
 'use client';
 
 import { useState, useMemo, useRef, useEffect, useCallback } from 'react';
-import { createPortal } from 'react-dom';
-import { Search, Plus, Ellipsis as MoreHorizontal, Eye, FileDown, Trash2, Receipt, TrendingUp, FileText, CircleAlert as AlertCircle, Printer, Pencil, ChevronDown, Check, SeparatorHorizontal } from 'lucide-react';
+import { Search, Plus, FileDown, Trash2, Receipt, TrendingUp, FileText, CircleAlert as AlertCircle, ChevronDown, Check, SeparatorHorizontal } from 'lucide-react';
 import { Project, Invoice, InvoiceLineItem, formatBudget } from '@/lib/projects-data';
 import { useCrm } from '@/lib/crm-context';
 import { SidePanel, useCoordinatedClose } from '@/components/ui/SidePanel';
 import { DatePicker } from '@/components/ui/DatePicker';
-import { InvoicePreview, InvoicePreviewData, invoiceToPreviewData } from '@/components/projects/InvoicePreview';
+import { InvoicePreview, InvoicePreviewData } from '@/components/projects/InvoicePreview';
 import { FloatingPreviewModal } from '@/components/projects/FloatingPreviewModal';
 
 interface FinanceTabProps {
@@ -53,37 +52,6 @@ function fmtRate(v: string): string {
   const n = parseFloat(v);
   if (isNaN(n)) return '';
   return `$${n.toFixed(2)}`;
-}
-
-// ── Portal dropdown (escapes overflow-hidden containers) ─────────────────────
-interface PortalMenuProps {
-  anchorRect: DOMRect | null;
-  onClose: () => void;
-  children: React.ReactNode;
-}
-function PortalMenu({ anchorRect, onClose, children }: PortalMenuProps) {
-  useEffect(() => {
-    const h = () => onClose();
-    document.addEventListener('scroll', h, true);
-    window.addEventListener('resize', h);
-    return () => { document.removeEventListener('scroll', h, true); window.removeEventListener('resize', h); };
-  }, [onClose]);
-
-  if (!anchorRect) return null;
-  const top = anchorRect.bottom + 4;
-  const left = Math.min(anchorRect.right - 176, window.innerWidth - 200);
-  return createPortal(
-    <>
-      <div className="fixed inset-0 z-[60]" onClick={onClose} />
-      <div
-        className="fixed z-[61] w-44 bg-popover border border-border rounded-xl shadow-lg py-1 overflow-hidden"
-        style={{ top, left }}
-      >
-        {children}
-      </div>
-    </>,
-    document.body
-  );
 }
 
 // ── Status dropdown (shared) ─────────────────────────────────────────────────
@@ -781,56 +749,6 @@ function EditInvoicePanel({ invoice, clients, onClose, onSave }: EditInvoicePane
   );
 }
 
-// ── Row 3-dot menu ───────────────────────────────────────────────────────────
-interface InvoiceMenuProps {
-  invoice: Invoice;
-  onDetails: () => void;
-  onPreview: () => void;
-  onExport: () => void;
-  onDelete: () => void;
-}
-function InvoiceRowMenu({ invoice, onDetails, onPreview, onExport, onDelete }: InvoiceMenuProps) {
-  const [open, setOpen] = useState(false);
-  const [rect, setRect] = useState<DOMRect | null>(null);
-  const btnRef = useRef<HTMLButtonElement>(null);
-
-  const handleToggle = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    if (!open && btnRef.current) setRect(btnRef.current.getBoundingClientRect());
-    setOpen(!open);
-  };
-
-  const close = () => setOpen(false);
-
-  return (
-    <>
-      <button
-        ref={btnRef}
-        onClick={handleToggle}
-        className="w-7 h-7 rounded-lg flex items-center justify-center hover:bg-muted transition-colors text-muted-foreground hover:text-foreground"
-      >
-        <MoreHorizontal size={15} />
-      </button>
-      {open && (
-        <PortalMenu anchorRect={rect} onClose={close}>
-          <button onClick={() => { close(); onPreview(); }} className="w-full flex items-center gap-2.5 px-3 py-2 text-sm text-left hover:bg-muted transition-colors text-foreground">
-            <Eye size={14} className="text-muted-foreground" /> Preview
-          </button>
-          <button onClick={() => { close(); onExport(); }} className="w-full flex items-center gap-2.5 px-3 py-2 text-sm text-left hover:bg-muted transition-colors text-foreground">
-            <FileDown size={14} className="text-muted-foreground" /> Export PDF
-          </button>
-          <button onClick={() => { close(); onDetails(); }} className="w-full flex items-center gap-2.5 px-3 py-2 text-sm text-left hover:bg-muted transition-colors text-foreground">
-            <Pencil size={14} className="text-muted-foreground" /> Edit Details
-          </button>
-          <button onClick={() => { close(); onDelete(); }} className="w-full flex items-center gap-2.5 px-3 py-2 text-sm text-left hover:bg-red-50 transition-colors text-red-600">
-            <Trash2 size={14} /> Delete
-          </button>
-        </PortalMenu>
-      )}
-    </>
-  );
-}
-
 // ── Main FinanceTab ──────────────────────────────────────────────────────────
 export function FinanceTab({ project, onUpdateInvoices }: FinanceTabProps) {
   const { clients } = useCrm();
@@ -838,7 +756,6 @@ export function FinanceTab({ project, onUpdateInvoices }: FinanceTabProps) {
   const [search, setSearch] = useState('');
   const [showAddPanel, setShowAddPanel] = useState(false);
   const [editInvoice, setEditInvoice] = useState<Invoice | null>(null);
-  const [previewInvoice, setPreviewInvoice] = useState<Invoice | null>(null);
 
   const [invoices, setInvoices] = useState<Invoice[]>(project.invoices || []);
 
@@ -887,10 +804,7 @@ export function FinanceTab({ project, onUpdateInvoices }: FinanceTabProps) {
     setEditInvoice(null);
   };
 
-  const handleExportPDF = (inv: Invoice) => {
-    setPreviewInvoice(inv);
-    setTimeout(() => window.print(), 400);
-  };
+  const handleExportPDF = () => setTimeout(() => window.print(), 400);
 
   return (
     <div className="space-y-5">
@@ -899,9 +813,6 @@ export function FinanceTab({ project, onUpdateInvoices }: FinanceTabProps) {
       )}
       {editInvoice && (
         <EditInvoicePanel invoice={editInvoice} clients={clientOptions} onClose={() => setEditInvoice(null)} onSave={handleSaveEdit} />
-      )}
-      {previewInvoice && (
-        <PreviewInvoicePanel invoice={previewInvoice} onClose={() => setPreviewInvoice(null)} onExport={() => setTimeout(() => window.print(), 400)} />
       )}
 
       {/* Top 3 KPI cards */}
@@ -986,18 +897,21 @@ export function FinanceTab({ project, onUpdateInvoices }: FinanceTabProps) {
             <table className="w-full">
               <thead>
                 <tr className="border-b border-border bg-muted/30">
-                  <th className="table-header text-left">Invoice #</th>
-                  <th className="table-header text-left">Client</th>
-                  <th className="table-header text-right">Amount</th>
-                  <th className="table-header text-left">Issued</th>
-                  <th className="table-header text-left">Due</th>
-                  <th className="table-header text-left">Status</th>
-                  <th className="table-header w-24" />
+                  <th className="table-header text-left" style={{ width: '16.6%' }}>Invoice #</th>
+                  <th className="table-header text-left" style={{ width: '16.6%' }}>Client</th>
+                  <th className="table-header text-right" style={{ width: '16.6%' }}>Amount</th>
+                  <th className="table-header text-left" style={{ width: '16.6%' }}>Issued</th>
+                  <th className="table-header text-left" style={{ width: '16.6%' }}>Due</th>
+                  <th className="table-header text-left" style={{ width: '16.6%' }}>Status</th>
                 </tr>
               </thead>
               <tbody>
                 {filteredInvoices.map(inv => (
-                  <tr key={inv.id} className="group/inv hover:bg-muted/20 transition-colors border-b border-border/40 last:border-b-0">
+                  <tr
+                    key={inv.id}
+                    onClick={() => setEditInvoice(inv)}
+                    className="group/inv hover:bg-muted/20 transition-colors border-b border-border/40 last:border-b-0 cursor-pointer"
+                  >
                     <td className="table-cell"><p className="font-medium text-sm">{inv.number}</p></td>
                     <td className="table-cell text-muted-foreground text-sm">{inv.clientName}</td>
                     <td className="table-cell text-right font-medium text-sm">{formatBudget(inv.amount)}</td>
@@ -1005,23 +919,6 @@ export function FinanceTab({ project, onUpdateInvoices }: FinanceTabProps) {
                     <td className="table-cell text-muted-foreground text-sm">{inv.dueDate}</td>
                     <td className="table-cell">
                       <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${statusBadgeColors[inv.status]}`}>{inv.status}</span>
-                    </td>
-                    <td className="table-cell">
-                      <div className="flex items-center justify-end gap-1 opacity-0 group-hover/inv:opacity-100 transition-opacity">
-                        <button
-                          onClick={() => setPreviewInvoice(inv)}
-                          className="h-7 px-2.5 text-xs font-medium rounded-lg border border-border hover:bg-muted transition-colors text-muted-foreground hover:text-foreground"
-                        >
-                          Preview
-                        </button>
-                        <InvoiceRowMenu
-                          invoice={inv}
-                          onDetails={() => setEditInvoice(inv)}
-                          onPreview={() => setPreviewInvoice(inv)}
-                          onExport={() => handleExportPDF(inv)}
-                          onDelete={() => handleDeleteInvoice(inv.id)}
-                        />
-                      </div>
                     </td>
                   </tr>
                 ))}
@@ -1031,60 +928,5 @@ export function FinanceTab({ project, onUpdateInvoices }: FinanceTabProps) {
         </div>
       </div>
     </div>
-  );
-}
-
-function PreviewInvoicePanel({ invoice, onClose, onExport }: { invoice: Invoice; onClose: () => void; onExport: () => void }) {
-  const { closingPreview, closingPanel, handleClose } = useCoordinatedClose(onClose);
-  const previewData = invoiceToPreviewData(invoice);
-
-  return (
-    <>
-      <FloatingPreviewModal data={previewData} onClose={handleClose} anchorToLeft heading="Preview" closing={closingPreview} />
-      <SidePanel
-        title="Preview Invoice"
-        subtitle={invoice.number}
-        onClose={handleClose}
-        closing={closingPanel}
-        width="min(42vw, 640px)"
-        footer={
-          <>
-            <button onClick={onExport} className="notion-button border border-border">
-              <FileDown size={15} /> Export PDF
-            </button>
-            <button onClick={handleClose} className="notion-button border border-border">Cancel</button>
-          </>
-        }
-      >
-        <div className="px-6 py-5 space-y-4">
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label className="block text-xs text-muted-foreground mb-1.5">Invoice Number</label>
-              <p className="text-sm font-medium">{invoice.number}</p>
-            </div>
-            <div>
-              <label className="block text-xs text-muted-foreground mb-1.5">Status</label>
-              <p className="text-sm font-medium">{invoice.status}</p>
-            </div>
-            <div>
-              <label className="block text-xs text-muted-foreground mb-1.5">Client</label>
-              <p className="text-sm font-medium">{invoice.clientName}</p>
-            </div>
-            <div>
-              <label className="block text-xs text-muted-foreground mb-1.5">Amount</label>
-              <p className="text-sm font-medium">A${invoice.amount.toLocaleString('en-AU')}</p>
-            </div>
-            <div>
-              <label className="block text-xs text-muted-foreground mb-1.5">Issued</label>
-              <p className="text-sm font-medium">{invoice.issuedDate}</p>
-            </div>
-            <div>
-              <label className="block text-xs text-muted-foreground mb-1.5">Due</label>
-              <p className="text-sm font-medium">{invoice.dueDate}</p>
-            </div>
-          </div>
-        </div>
-      </SidePanel>
-    </>
   );
 }

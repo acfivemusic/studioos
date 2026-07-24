@@ -15,6 +15,8 @@ export interface FloatingPreviewModalProps {
   closing?: boolean;
 }
 
+const ANIM_MS = 350;
+
 export function FloatingPreviewModal({ data, onClose, anchorToLeft = true, heading = 'Live Preview', closing = false }: FloatingPreviewModalProps) {
   const [visible, setVisible] = useState(false);
   const [mounted, setMounted] = useState(false);
@@ -54,12 +56,12 @@ export function FloatingPreviewModal({ data, onClose, anchorToLeft = true, headi
         width: modalWidth,
         display: 'flex',
         alignItems: 'center',
-        justifyContent: 'flex-start',
-        transition: 'right 350ms ease-in-out, opacity 350ms ease-in-out',
+        justifyContent: 'center',
+        transition: `right ${ANIM_MS}ms ease-in-out, opacity ${ANIM_MS}ms ease-in-out`,
       }}
     >
       <div
-        className="bg-card rounded-2xl shadow-2xl border border-border overflow-hidden flex flex-col"
+        className="bg-white rounded-2xl shadow-2xl border border-border overflow-hidden flex flex-col"
         style={{ width: modalWidth, height: 'min(82vh, 760px)' }}
         onClick={(e) => e.stopPropagation()}
       >
@@ -70,8 +72,8 @@ export function FloatingPreviewModal({ data, onClose, anchorToLeft = true, headi
           </div>
         </div>
 
-        {/* InvoicePreview handles its own internal scrolling & A4 scaling */}
-        <div className="flex-1 min-h-0">
+        {/* White background with padding around the A4 page */}
+        <div className="flex-1 min-h-0 bg-white p-5 flex items-center justify-center">
           <InvoicePreview data={data} />
         </div>
       </div>

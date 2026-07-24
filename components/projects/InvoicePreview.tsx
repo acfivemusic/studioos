@@ -317,12 +317,13 @@ export const InvoicePreview = memo(function InvoicePreview({ data, showToolbar, 
           {pages.map((pageLines, idx) => (
             <div
               key={idx}
-              className="invoice-page-shell overflow-hidden shadow-md print:shadow-none print:rounded-none"
+              className="invoice-page-shell overflow-hidden print:shadow-none print:rounded-none"
               style={{
                 width: A4_WIDTH_PX * scale,
                 height: scaledHeight,
                 flexShrink: 0,
                 borderRadius: 0,
+                boxShadow: '0 1px 3px rgba(0,0,0,0.08), 0 8px 24px rgba(0,0,0,0.12)',
               }}
             >
               <div
