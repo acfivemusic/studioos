@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useCallback } from 'react';
 import { createPortal } from 'react-dom';
 import { X } from 'lucide-react';
 
@@ -16,28 +16,23 @@ interface SidePanelProps {
   closing?: boolean;
 }
 
+const ANIM_MS = 350;
+
 export function SidePanel({ title, subtitle, onClose, children, footer, width = 'min(45vw, 820px)', headerExtra, closing = false }: SidePanelProps) {
   const [visible, setVisible] = useState(false);
   const [mounted, setMounted] = useState(false);
-  const visibleRef = useRef<number | null>(null);
 
-  useEffect(() => {
-    setMounted(true);
-  }, []);
+  useEffect(() => { setMounted(true); }, []);
 
   useEffect(() => {
     if (!mounted) return;
     const r1 = requestAnimationFrame(() => {
       const r2 = requestAnimationFrame(() => setVisible(true));
-      visibleRef.current = r2;
+      return () => cancelAnimationFrame(r2);
     });
-    return () => {
-      cancelAnimationFrame(r1);
-      if (visibleRef.current) cancelAnimationFrame(visibleRef.current);
-    };
+    return () => cancelAnimationFrame(r1);
   }, [mounted]);
 
-  // When closing prop flips to true, start exit animation
   useEffect(() => {
     if (closing) setVisible(false);
   }, [closing]);
@@ -48,25 +43,29 @@ export function SidePanel({ title, subtitle, onClose, children, footer, width = 
     return () => window.removeEventListener('keydown', handler);
   }, []);
 
-  const handleClose = () => {
+  const handleClose = useCallback(() => {
     setVisible(false);
-    setTimeout(onClose, 280);
-  };
+    setTimeout(onClose, ANIM_MS);
+  }, [onClose]);
 
   if (!mounted) return null;
 
   return createPortal(
     <>
-      {/* Frosted glass overlay — visible page, no text blur */}
+      {/* Frosted glass overlay */}
       <div
-        className={`fixed inset-0 z-40 transition-opacity duration-280 ${visible ? 'opacity-100' : 'opacity-0'}`}
-        style={{ background: 'rgba(220,218,212,0.55)', backdropFilter: 'blur(2px)', WebkitBackdropFilter: 'blur(2px)' }}
+        className={`fixed inset-0 z-40 transition-opacity ease-in-out ${visible ? 'opacity-100' : 'opacity-0'}`}
+        style={{ background: 'rgba(220,218,212,0.55)', backdropFilter: 'blur(2px)', WebkitBackdropFilter: 'blur(2px)', transitionDuration: `${ANIM_MS}ms` }}
         onClick={handleClose}
       />
       {/* Panel */}
       <div
-        className="fixed top-0 right-0 bottom-0 z-50 bg-card border-l border-border shadow-2xl flex flex-col transition-transform duration-280 ease-out"
-        style={{ width, minWidth: 480, transform: visible ? 'translateX(0)' : 'translateX(100%)' }}
+        className="fixed top-0 right-0 bottom-0 z-50 bg-card border-l border-border shadow-2xl flex flex-col ease-in-out"
+        style={{
+          width, minWidth: 480,
+          transform: visible ? 'translateX(0)' : 'translateX(100%)',
+          transition: `transform ${ANIM_MS}ms ease-in-out`,
+        }}
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
@@ -81,7 +80,7 @@ export function SidePanel({ title, subtitle, onClose, children, footer, width = 
           </button>
         </div>
 
-        {/* Body — scrollable with thin scrollbar */}
+        {/* Body */}
         <div className="flex-1 min-h-0 modal-scroll">
           {children}
         </div>
@@ -94,6 +93,28 @@ export function SidePanel({ title, subtitle, onClose, children, footer, width = 
         )}
       </div>
     </>,
-    document.body
+    document.body,
   );
+}
+
+/**
+ * Coordinates a two-step exit: first the floating preview slides out,
+ * then the side panel slides out, then onClose unmounts everything.
+ * Works for both Cancel-button clicks and outside-click dismissals.
+ */
+export function useCoordinatedClose(onClose: () => void) {
+  const [closingPreview, setClosingPreview] = useState(false);
+  const [closingPanel, setClosingPanel] = useState(false);
+
+  const handleClose = useCallback(() => {
+    setClosingPreview(true);
+    setTimeout(() => {
+      setClosingPanel(true);
+      setTimeout(() => {
+        onClose();
+      }, ANIM_MS);
+    }, ANIM_MS);
+  }, [onClose]);
+
+  return { closingPreview, closingPanel, handleClose };
 }

@@ -3986,6 +3986,10 @@ html.dark { color-scheme: dark; }
     display: none;
   }
 
+  .print\:justify-start {
+    justify-content: flex-start;
+  }
+
   .print\:gap-0 {
     gap: 0px;
   }

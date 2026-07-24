@@ -230,7 +230,7 @@ const InvoicePage = memo(function InvoicePage({ data, lines, pageIdx, totalPages
   const isLast = pageIdx === totalPages - 1;
   // Header + details only on first page; totals + notes + footer only on last.
   return (
-    <div className="invoice-page-bg flex flex-col" style={{ width: A4_WIDTH_PX, minHeight: A4_HEIGHT_PX, padding: '48px 56px' }}>
+    <div className="invoice-page-bg flex flex-col" style={{ width: A4_WIDTH_PX, minHeight: A4_HEIGHT_PX, padding: '48px 56px', background: '#FDF9F5' }}>
       {isFirst && <InvoiceHeader data={data} />}
       {isFirst && <InvoiceDetails data={data} />}
 
@@ -312,16 +312,17 @@ export const InvoicePreview = memo(function InvoicePreview({ data, showToolbar, 
         </div>
       )}
 
-      <div ref={containerRef} className="flex-1 overflow-y-auto modal-scroll bg-muted/20 print:overflow-visible print:bg-white">
-        <div className="flex flex-col items-center gap-6 py-6 print:py-0 print:gap-0">
+      <div ref={containerRef} className="flex-1 print:overflow-visible print:bg-white" style={{ overflowY: totalPages > 1 ? 'auto' : 'hidden' }}>
+        <div className={`flex flex-col items-center ${totalPages > 1 ? 'gap-6 py-6' : 'justify-center h-full'} print:py-0 print:gap-0 print:justify-start`}>
           {pages.map((pageLines, idx) => (
             <div
               key={idx}
-              className="invoice-page-shell rounded-xl overflow-hidden shadow-md print:shadow-none print:rounded-none"
+              className="invoice-page-shell overflow-hidden shadow-md print:shadow-none print:rounded-none"
               style={{
                 width: A4_WIDTH_PX * scale,
                 height: scaledHeight,
                 flexShrink: 0,
+                borderRadius: 0,
               }}
             >
               <div

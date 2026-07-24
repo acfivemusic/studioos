@@ -5,7 +5,7 @@ import { createPortal } from 'react-dom';
 import { Search, Plus, Ellipsis as MoreHorizontal, Eye, FileDown, Trash2, Receipt, TrendingUp, FileText, CircleAlert as AlertCircle, Printer, Pencil, ChevronDown, Check, SeparatorHorizontal } from 'lucide-react';
 import { Project, Invoice, InvoiceLineItem, formatBudget } from '@/lib/projects-data';
 import { useCrm } from '@/lib/crm-context';
-import { SidePanel } from '@/components/ui/SidePanel';
+import { SidePanel, useCoordinatedClose } from '@/components/ui/SidePanel';
 import { DatePicker } from '@/components/ui/DatePicker';
 import { InvoicePreview, InvoicePreviewData, invoiceToPreviewData } from '@/components/projects/InvoicePreview';
 import { FloatingPreviewModal } from '@/components/projects/FloatingPreviewModal';
@@ -544,22 +544,9 @@ function AddInvoicePanel({ project, clients, onClose, onSave }: AddInvoicePanelP
 
   const canSave = invoiceDate && invoiceNumber && clientName;
 
-  // ── Coordinated two-step close: preview slides out first, then panel ────────
-  const [closingPreview, setClosingPreview] = useState(false);
-  const [closingPanel, setClosingPanel] = useState(false);
+  const { closingPreview, closingPanel, handleClose } = useCoordinatedClose(onClose);
 
-  const handleClose = useCallback(() => {
-    // Step 1: slide preview out to the right
-    setClosingPreview(true);
-    // Step 2: after preview exits, slide panel out
-    setTimeout(() => {
-      setClosingPanel(true);
-      // Step 3: after panel exits, unmount everything
-      setTimeout(() => {
-        onClose();
-      }, 300);
-    }, 300);
-  }, [onClose]);
+  const handleExportPDF = () => setTimeout(() => window.print(), 400);
 
   const combinedAddress = [clientAddress1, clientAddress2, clientAddress3].filter(Boolean).join('\n');
 
@@ -606,7 +593,9 @@ function AddInvoicePanel({ project, clients, onClose, onSave }: AddInvoicePanelP
         }
         footer={
           <>
-            <div />
+            <button onClick={handleExportPDF} className="notion-button border border-border">
+              <FileDown size={15} /> Export PDF
+            </button>
             <div className="flex gap-2">
               <button onClick={handleClose} className="notion-button border border-border">Cancel</button>
               <button onClick={handleSave} disabled={!canSave} className="btn-primary disabled:opacity-40 disabled:cursor-not-allowed">
@@ -705,19 +694,9 @@ function EditInvoicePanel({ invoice, clients, onClose, onSave }: EditInvoicePane
     invoiceDate, dueOnReceipt, dueDate, status, lines, notes, subtotal,
   }), [invoiceNumber, clientName, clientAddress1, clientAddress2, clientAddress3, companyName, companyAddress, companySuburb, abn, accountHolder, bsb, accountNo, bankName, bicSwift, referenceDesc, invoiceDate, dueOnReceipt, dueDate, status, lines, notes, subtotal]);
 
-  // ── Coordinated two-step close: preview slides out first, then panel ────────
-  const [closingPreview, setClosingPreview] = useState(false);
-  const [closingPanel, setClosingPanel] = useState(false);
+  const { closingPreview, closingPanel, handleClose } = useCoordinatedClose(onClose);
 
-  const handleClose = useCallback(() => {
-    setClosingPreview(true);
-    setTimeout(() => {
-      setClosingPanel(true);
-      setTimeout(() => {
-        onClose();
-      }, 300);
-    }, 300);
-  }, [onClose]);
+  const handleExportPDF = () => setTimeout(() => window.print(), 400);
 
   const combinedAddress = [clientAddress1, clientAddress2, clientAddress3].filter(Boolean).join('\n');
 
@@ -762,7 +741,9 @@ function EditInvoicePanel({ invoice, clients, onClose, onSave }: EditInvoicePane
         }
         footer={
           <>
-            <div />
+            <button onClick={handleExportPDF} className="notion-button border border-border">
+              <FileDown size={15} /> Export PDF
+            </button>
             <div className="flex gap-2">
               <button onClick={handleClose} className="notion-button border border-border">Cancel</button>
               <button onClick={handleSave} className="btn-primary">Save Changes</button>
@@ -858,6 +839,7 @@ export function FinanceTab({ project, onUpdateInvoices }: FinanceTabProps) {
   const [showAddPanel, setShowAddPanel] = useState(false);
   const [editInvoice, setEditInvoice] = useState<Invoice | null>(null);
   const [previewInvoice, setPreviewInvoice] = useState<Invoice | null>(null);
+
   const [invoices, setInvoices] = useState<Invoice[]>(project.invoices || []);
 
   // Map CRM clients to a simplified shape for the dropdown
@@ -919,12 +901,7 @@ export function FinanceTab({ project, onUpdateInvoices }: FinanceTabProps) {
         <EditInvoicePanel invoice={editInvoice} clients={clientOptions} onClose={() => setEditInvoice(null)} onSave={handleSaveEdit} />
       )}
       {previewInvoice && (
-        <FloatingPreviewModal
-          data={invoiceToPreviewData(previewInvoice)}
-          onClose={() => setPreviewInvoice(null)}
-          centred
-          heading="Preview"
-        />
+        <PreviewInvoicePanel invoice={previewInvoice} onClose={() => setPreviewInvoice(null)} onExport={() => setTimeout(() => window.print(), 400)} />
       )}
 
       {/* Top 3 KPI cards */}
@@ -1054,5 +1031,60 @@ export function FinanceTab({ project, onUpdateInvoices }: FinanceTabProps) {
         </div>
       </div>
     </div>
+  );
+}
+
+function PreviewInvoicePanel({ invoice, onClose, onExport }: { invoice: Invoice; onClose: () => void; onExport: () => void }) {
+  const { closingPreview, closingPanel, handleClose } = useCoordinatedClose(onClose);
+  const previewData = invoiceToPreviewData(invoice);
+
+  return (
+    <>
+      <FloatingPreviewModal data={previewData} onClose={handleClose} anchorToLeft heading="Preview" closing={closingPreview} />
+      <SidePanel
+        title="Preview Invoice"
+        subtitle={invoice.number}
+        onClose={handleClose}
+        closing={closingPanel}
+        width="min(42vw, 640px)"
+        footer={
+          <>
+            <button onClick={onExport} className="notion-button border border-border">
+              <FileDown size={15} /> Export PDF
+            </button>
+            <button onClick={handleClose} className="notion-button border border-border">Cancel</button>
+          </>
+        }
+      >
+        <div className="px-6 py-5 space-y-4">
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="block text-xs text-muted-foreground mb-1.5">Invoice Number</label>
+              <p className="text-sm font-medium">{invoice.number}</p>
+            </div>
+            <div>
+              <label className="block text-xs text-muted-foreground mb-1.5">Status</label>
+              <p className="text-sm font-medium">{invoice.status}</p>
+            </div>
+            <div>
+              <label className="block text-xs text-muted-foreground mb-1.5">Client</label>
+              <p className="text-sm font-medium">{invoice.clientName}</p>
+            </div>
+            <div>
+              <label className="block text-xs text-muted-foreground mb-1.5">Amount</label>
+              <p className="text-sm font-medium">A${invoice.amount.toLocaleString('en-AU')}</p>
+            </div>
+            <div>
+              <label className="block text-xs text-muted-foreground mb-1.5">Issued</label>
+              <p className="text-sm font-medium">{invoice.issuedDate}</p>
+            </div>
+            <div>
+              <label className="block text-xs text-muted-foreground mb-1.5">Due</label>
+              <p className="text-sm font-medium">{invoice.dueDate}</p>
+            </div>
+          </div>
+        </div>
+      </SidePanel>
+    </>
   );
 }
