@@ -607,14 +607,17 @@ function AddInvoicePanel({ project, clients, onClose, onSave }: AddInvoicePanelP
         }
         extension={
           <>
-            <div className="flex items-center justify-between px-4 py-2.5 border-b border-border flex-shrink-0 print:hidden">
-              <div className="min-w-0">
-                <p className="text-sm font-semibold truncate">Live Preview</p>
-                <p className="text-[11px] text-muted-foreground truncate">{previewData.number || 'Invoice'} · {previewData.clientName || '—'}</p>
+            <div className="flex items-start justify-between gap-3 px-6 pt-4 pb-3 border-b border-border flex-shrink-0 print:hidden">
+              <div className="min-w-0 pt-0.5">
+                <h2 className="font-semibold text-base leading-none">Live Preview</h2>
+                <p className="text-xs text-muted-foreground mt-1 truncate">{previewData.number || 'Invoice'} · {previewData.clientName || '—'}</p>
               </div>
             </div>
-            <div className="flex-1 min-h-0 bg-white p-5 flex items-center justify-center">
+            <div className="flex-1 min-h-0 modal-scroll flex items-center justify-center p-6">
               <InvoicePreview data={previewData} showNavigation />
+            </div>
+            <div className="flex items-center justify-between px-6 py-4 border-t border-border bg-card flex-shrink-0 print:hidden">
+              <span className="text-xs text-muted-foreground">A4 Portrait</span>
             </div>
           </>
         }
@@ -768,14 +771,17 @@ function EditInvoicePanel({ invoice, clients, onClose, onSave }: EditInvoicePane
         }
         extension={
           <>
-            <div className="flex items-center justify-between px-4 py-2.5 border-b border-border flex-shrink-0 print:hidden">
-              <div className="min-w-0">
-                <p className="text-sm font-semibold truncate">Live Preview</p>
-                <p className="text-[11px] text-muted-foreground truncate">{previewData.number || 'Invoice'} · {previewData.clientName || '—'}</p>
+            <div className="flex items-start justify-between gap-3 px-6 pt-4 pb-3 border-b border-border flex-shrink-0 print:hidden">
+              <div className="min-w-0 pt-0.5">
+                <h2 className="font-semibold text-base leading-none">Live Preview</h2>
+                <p className="text-xs text-muted-foreground mt-1 truncate">{previewData.number || 'Invoice'} · {previewData.clientName || '—'}</p>
               </div>
             </div>
-            <div className="flex-1 min-h-0 bg-white p-5 flex items-center justify-center">
+            <div className="flex-1 min-h-0 modal-scroll flex items-center justify-center p-6">
               <InvoicePreview data={previewData} showNavigation />
+            </div>
+            <div className="flex items-center justify-between px-6 py-4 border-t border-border bg-card flex-shrink-0 print:hidden">
+              <span className="text-xs text-muted-foreground">A4 Portrait</span>
             </div>
           </>
         }

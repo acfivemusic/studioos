@@ -1,6 +1,6 @@
 'use client';
 
-import { memo, useMemo, useState, useEffect, useRef, useCallback } from 'react';
+import { memo, useMemo, useState, useLayoutEffect, useRef, useCallback } from 'react';
 import { Printer, ChevronLeft, ChevronRight } from 'lucide-react';
 import type { Invoice } from '@/lib/projects-data';
 
@@ -51,8 +51,8 @@ export interface InvoicePreviewData {
 // Measures the container width and computes a uniform scale so the fixed-size
 // A4 page fits the available width while preserving its aspect ratio.
 function useA4Scale(containerRef: React.RefObject<HTMLDivElement>) {
-  const [scale, setScale] = useState(0.5);
-  useEffect(() => {
+  const [scale, setScale] = useState(1);
+  useLayoutEffect(() => {
     const el = containerRef.current;
     if (!el) return;
     const compute = () => {
@@ -354,7 +354,7 @@ export const InvoicePreview = memo(function InvoicePreview({ data, showToolbar, 
       </div>
 
       {showNav && (
-        <div className="flex items-center gap-2 px-4 py-2.5 border-t border-border flex-shrink-0 print:hidden">
+        <div className="flex items-center gap-2 px-6 py-4 border-t border-border flex-shrink-0 print:hidden">
           <button
             onClick={() => setCurrentPage(p => Math.max(0, p - 1))}
             disabled={safePage === 0}
