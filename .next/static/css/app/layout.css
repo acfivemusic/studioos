@@ -1086,6 +1086,12 @@ html.dark { color-scheme: dark; }
 .z-\[60\] {
   z-index: 60;
 }
+.z-\[70\] {
+  z-index: 70;
+}
+.z-\[71\] {
+  z-index: 71;
+}
 .col-span-2 {
   grid-column: span 2 / span 2;
 }
@@ -1992,6 +1998,9 @@ html.dark { color-scheme: dark; }
 }
 .border-transparent {
   border-color: transparent;
+}
+.border-muted-foreground\/30 {
+  border-color: hsl(var(--muted-foreground) / 0.3);
 }
 .border-l-transparent {
   border-left-color: transparent;
@@ -3215,6 +3224,10 @@ html.dark { color-scheme: dark; }
 
 .hover\:opacity-90:hover {
   opacity: 0.9;
+}
+
+.hover\:opacity-80:hover {
+  opacity: 0.8;
 }
 
 .hover\:shadow-md:hover {

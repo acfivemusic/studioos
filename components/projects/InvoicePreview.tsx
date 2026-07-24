@@ -1,7 +1,7 @@
 'use client';
 
 import { memo, useMemo, useState, useEffect, useRef, useCallback } from 'react';
-import { Printer } from 'lucide-react';
+import { Printer, ChevronLeft, ChevronRight } from 'lucide-react';
 import type { Invoice } from '@/lib/projects-data';
 
 // ── A4 geometry ──────────────────────────────────────────────────────────────
@@ -255,11 +255,14 @@ export interface InvoicePreviewProps {
   showToolbar?: boolean;
   /** Called when the user clicks Export PDF in the toolbar. */
   onExportPDF?: () => void;
+  /** When true, shows < > navigation arrows below the preview for multi-page invoices. */
+  showNavigation?: boolean;
 }
 
-export const InvoicePreview = memo(function InvoicePreview({ data, showToolbar, onExportPDF }: InvoicePreviewProps) {
+export const InvoicePreview = memo(function InvoicePreview({ data, showToolbar, onExportPDF, showNavigation }: InvoicePreviewProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const scale = useA4Scale(containerRef);
+  const [currentPage, setCurrentPage] = useState(0);
 
   const handlePrint = useCallback(() => {
     onExportPDF?.();
@@ -296,6 +299,8 @@ export const InvoicePreview = memo(function InvoicePreview({ data, showToolbar, 
 
   const totalPages = pages.length;
   const scaledHeight = A4_HEIGHT_PX * scale;
+  const showNav = showNavigation && totalPages > 1;
+  const safePage = Math.min(currentPage, totalPages - 1);
 
   return (
     <div className="flex flex-col h-full">
@@ -324,6 +329,7 @@ export const InvoicePreview = memo(function InvoicePreview({ data, showToolbar, 
                 flexShrink: 0,
                 borderRadius: 0,
                 boxShadow: '0 1px 3px rgba(0,0,0,0.08), 0 8px 24px rgba(0,0,0,0.12)',
+                display: showNav && idx !== safePage ? 'none' : undefined,
               }}
             >
               <div
@@ -346,6 +352,28 @@ export const InvoicePreview = memo(function InvoicePreview({ data, showToolbar, 
           ))}
         </div>
       </div>
+
+      {showNav && (
+        <div className="flex items-center gap-2 px-4 py-2.5 border-t border-border flex-shrink-0 print:hidden">
+          <button
+            onClick={() => setCurrentPage(p => Math.max(0, p - 1))}
+            disabled={safePage === 0}
+            className="w-7 h-7 rounded-lg border border-border flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+          >
+            <ChevronLeft size={15} />
+          </button>
+          <span className="text-xs text-muted-foreground font-medium tabular-nums">
+            {safePage + 1} / {totalPages}
+          </span>
+          <button
+            onClick={() => setCurrentPage(p => Math.min(totalPages - 1, p + 1))}
+            disabled={safePage === totalPages - 1}
+            className="w-7 h-7 rounded-lg border border-border flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+          >
+            <ChevronRight size={15} />
+          </button>
+        </div>
+      )}
     </div>
   );
 });

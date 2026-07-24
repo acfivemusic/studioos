@@ -7,7 +7,6 @@ import { useCrm } from '@/lib/crm-context';
 import { SidePanel, useCoordinatedClose } from '@/components/ui/SidePanel';
 import { DatePicker } from '@/components/ui/DatePicker';
 import { InvoicePreview, InvoicePreviewData } from '@/components/projects/InvoicePreview';
-import { FloatingPreviewModal } from '@/components/projects/FloatingPreviewModal';
 
 interface FinanceTabProps {
   project: Project;
@@ -74,6 +73,53 @@ function StatusDropdown({ value, onChange }: { value: Invoice['status']; onChang
               <button
                 key={s}
                 onClick={() => { onChange(s); setOpen(false); }}
+                className="flex items-center justify-between w-full px-4 py-2 text-sm text-left hover:bg-muted transition-colors whitespace-nowrap"
+              >
+                <span className={value === s ? 'text-foreground font-medium' : 'text-muted-foreground'}>{s}</span>
+                {value === s && <Check size={14} />}
+              </button>
+            ))}
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
+// ── Status dropdown for table cells (renders above the container via portal) ──
+function StatusCellDropdown({ value, onChange }: { value: Invoice['status']; onChange: (s: Invoice['status']) => void }) {
+  const [open, setOpen] = useState(false);
+  const [rect, setRect] = useState<DOMRect | null>(null);
+  const btnRef = useRef<HTMLButtonElement>(null);
+
+  const handleToggle = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!open && btnRef.current) setRect(btnRef.current.getBoundingClientRect());
+    setOpen(!open);
+  };
+
+  return (
+    <div className="relative">
+      <button
+        ref={btnRef}
+        onClick={handleToggle}
+        className="flex items-center gap-1 text-xs px-2 py-0.5 rounded-full font-medium transition-colors hover:opacity-80"
+        style={statusBadgeColors[value] ? undefined : undefined}
+      >
+        <span className={`px-2 py-0.5 rounded-full ${statusBadgeColors[value] || 'bg-muted text-muted-foreground'}`}>{value}</span>
+        <ChevronDown size={12} className="text-muted-foreground" />
+      </button>
+      {open && rect && (
+        <>
+          <div className="fixed inset-0 z-[70]" onClick={(e) => { e.stopPropagation(); setOpen(false); }} />
+          <div
+            className="fixed z-[71] bg-popover border border-border rounded-xl shadow-lg py-1 overflow-hidden min-w-32"
+            style={{ top: rect.bottom + 4, left: rect.left }}
+          >
+            {(['Draft', 'Issued', 'Paid', 'Unpaid', 'Overdue'] as Invoice['status'][]).map(s => (
+              <button
+                key={s}
+                onClick={(e) => { e.stopPropagation(); onChange(s); setOpen(false); }}
                 className="flex items-center justify-between w-full px-4 py-2 text-sm text-left hover:bg-muted transition-colors whitespace-nowrap"
               >
                 <span className={value === s ? 'text-foreground font-medium' : 'text-muted-foreground'}>{s}</span>
@@ -512,7 +558,7 @@ function AddInvoicePanel({ project, clients, onClose, onSave }: AddInvoicePanelP
 
   const canSave = invoiceDate && invoiceNumber && clientName;
 
-  const { closingPreview, closingPanel, handleClose } = useCoordinatedClose(onClose);
+  const { closingExtension, closingPanel, handleClose } = useCoordinatedClose(onClose);
 
   const handleExportPDF = () => setTimeout(() => window.print(), 400);
 
@@ -547,17 +593,30 @@ function AddInvoicePanel({ project, clients, onClose, onSave }: AddInvoicePanelP
 
   return (
     <>
-      <FloatingPreviewModal data={previewData} onClose={handleClose} anchorToLeft heading="Live Preview" closing={closingPreview} />
       <SidePanel
         title="New Invoice"
         subtitle={project.name}
         onClose={handleClose}
         closing={closingPanel}
+        closingExtension={closingExtension}
         width="min(42vw, 640px)"
         headerExtra={
           <div className="ml-auto pt-0.5">
             <StatusDropdown value={status} onChange={setStatus} />
           </div>
+        }
+        extension={
+          <>
+            <div className="flex items-center justify-between px-4 py-2.5 border-b border-border flex-shrink-0 print:hidden">
+              <div className="min-w-0">
+                <p className="text-sm font-semibold truncate">Live Preview</p>
+                <p className="text-[11px] text-muted-foreground truncate">{previewData.number || 'Invoice'} · {previewData.clientName || '—'}</p>
+              </div>
+            </div>
+            <div className="flex-1 min-h-0 bg-white p-5 flex items-center justify-center">
+              <InvoicePreview data={previewData} showNavigation />
+            </div>
+          </>
         }
         footer={
           <>
@@ -662,7 +721,7 @@ function EditInvoicePanel({ invoice, clients, onClose, onSave }: EditInvoicePane
     invoiceDate, dueOnReceipt, dueDate, status, lines, notes, subtotal,
   }), [invoiceNumber, clientName, clientAddress1, clientAddress2, clientAddress3, companyName, companyAddress, companySuburb, abn, accountHolder, bsb, accountNo, bankName, bicSwift, referenceDesc, invoiceDate, dueOnReceipt, dueDate, status, lines, notes, subtotal]);
 
-  const { closingPreview, closingPanel, handleClose } = useCoordinatedClose(onClose);
+  const { closingExtension, closingPanel, handleClose } = useCoordinatedClose(onClose);
 
   const handleExportPDF = () => setTimeout(() => window.print(), 400);
 
@@ -695,17 +754,30 @@ function EditInvoicePanel({ invoice, clients, onClose, onSave }: EditInvoicePane
 
   return (
     <>
-      <FloatingPreviewModal data={previewData} onClose={handleClose} anchorToLeft heading="Live Preview" closing={closingPreview} />
       <SidePanel
         title="Edit Invoice"
         subtitle={invoice.number}
         onClose={handleClose}
         closing={closingPanel}
+        closingExtension={closingExtension}
         width="min(42vw, 640px)"
         headerExtra={
           <div className="ml-auto pt-0.5">
             <StatusDropdown value={status} onChange={setStatus} />
           </div>
+        }
+        extension={
+          <>
+            <div className="flex items-center justify-between px-4 py-2.5 border-b border-border flex-shrink-0 print:hidden">
+              <div className="min-w-0">
+                <p className="text-sm font-semibold truncate">Live Preview</p>
+                <p className="text-[11px] text-muted-foreground truncate">{previewData.number || 'Invoice'} · {previewData.clientName || '—'}</p>
+              </div>
+            </div>
+            <div className="flex-1 min-h-0 bg-white p-5 flex items-center justify-center">
+              <InvoicePreview data={previewData} showNavigation />
+            </div>
+          </>
         }
         footer={
           <>
@@ -793,6 +865,12 @@ export function FinanceTab({ project, onUpdateInvoices }: FinanceTabProps) {
 
   const handleDeleteInvoice = (id: string) => {
     const updated = invoices.filter(i => i.id !== id);
+    setInvoices(updated);
+    onUpdateInvoices?.(updated);
+  };
+
+  const handleStatusChange = (id: string, newStatus: Invoice['status']) => {
+    const updated = invoices.map(i => i.id === id ? { ...i, status: newStatus } : i);
     setInvoices(updated);
     onUpdateInvoices?.(updated);
   };
@@ -899,7 +977,7 @@ export function FinanceTab({ project, onUpdateInvoices }: FinanceTabProps) {
                 <tr className="border-b border-border bg-muted/30">
                   <th className="table-header text-left" style={{ width: '16.6%' }}>Invoice #</th>
                   <th className="table-header text-left" style={{ width: '16.6%' }}>Client</th>
-                  <th className="table-header text-right" style={{ width: '16.6%' }}>Amount</th>
+                  <th className="table-header text-left" style={{ width: '16.6%' }}>Amount</th>
                   <th className="table-header text-left" style={{ width: '16.6%' }}>Issued</th>
                   <th className="table-header text-left" style={{ width: '16.6%' }}>Due</th>
                   <th className="table-header text-left" style={{ width: '16.6%' }}>Status</th>
@@ -914,11 +992,14 @@ export function FinanceTab({ project, onUpdateInvoices }: FinanceTabProps) {
                   >
                     <td className="table-cell"><p className="font-medium text-sm">{inv.number}</p></td>
                     <td className="table-cell text-muted-foreground text-sm">{inv.clientName}</td>
-                    <td className="table-cell text-right font-medium text-sm">{formatBudget(inv.amount)}</td>
+                    <td className="table-cell font-medium text-sm">{formatBudget(inv.amount)}</td>
                     <td className="table-cell text-muted-foreground text-sm">{inv.issuedDate}</td>
                     <td className="table-cell text-muted-foreground text-sm">{inv.dueDate}</td>
-                    <td className="table-cell">
-                      <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${statusBadgeColors[inv.status]}`}>{inv.status}</span>
+                    <td className="table-cell" onClick={(e) => e.stopPropagation()}>
+                      <StatusCellDropdown
+                        value={inv.status}
+                        onChange={(newStatus) => handleStatusChange(inv.id, newStatus)}
+                      />
                     </td>
                   </tr>
                 ))}
